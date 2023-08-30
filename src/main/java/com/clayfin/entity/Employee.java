@@ -44,7 +44,8 @@ public class Employee {
 	@Enumerated(EnumType.STRING)
 	private RoleType role;
 	
-	@OneToOne()
+	@OneToOne(mappedBy = "employee")
+	@JsonIgnore
 	private EmployeeProfile employeeProfile;
 
 	@ManyToOne
