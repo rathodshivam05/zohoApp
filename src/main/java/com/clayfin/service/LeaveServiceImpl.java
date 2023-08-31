@@ -1,8 +1,13 @@
 package com.clayfin.service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +59,25 @@ public class LeaveServiceImpl implements LeaveService {
 		if (!repoHelper.isLeaveExist(leaveId))
 			throw new LeaveException(Constants.LEAVE_NOT_FOUND_WITH_LEAVE_ID + leaveId);
 
-		return leaveRepo.save(leaveRecord);
+		LeaveRecord leaveRecord1 = getLeaveByLeaveId(leaveId);
+
+		BeanUtils.copyProperties(leaveRecord, leaveRecord1, getNullPropertyNames(leaveRecord));
+		return leaveRepo.save(leaveRecord1);
+	}
+
+	private String[] getNullPropertyNames(Object source) {
+		final BeanWrapper src = new BeanWrapperImpl(source);
+		java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
+
+		Set<String> emptyNames = new HashSet<>();
+		for (java.beans.PropertyDescriptor pd : pds) {
+			Object srcValue = src.getPropertyValue(pd.getName());
+			if (srcValue == null)
+				emptyNames.add(pd.getName());
+		}
+
+		String[] result = new String[emptyNames.size()];
+		return emptyNames.toArray(result);
 	}
 
 	@Override
@@ -149,10 +172,9 @@ public class LeaveServiceImpl implements LeaveService {
 		LeaveRecord leave = leaveRepo.findById(leaveId)
 				.orElseThrow(() -> new LeaveException(Constants.LEAVE_NOT_FOUND_WITH_LEAVE_ID + leaveId));
 
-		
-		if(leave.getStatus()!=LeaveStatus.PENDING)
-			throw new LeaveException("Leave Already Updated to "+leave.getStatus());
-		
+		if (leave.getStatus() != LeaveStatus.PENDING)
+			throw new LeaveException("Leave Already Updated to " + leave.getStatus());
+
 		leave.setStatus(status);
 
 		return leaveRepo.save(leave);

@@ -41,8 +41,8 @@ public class TaskController {
 	ResponseEntity<GeneralResponse> updateTask(@PathVariable Integer taskId, @RequestBody Task task)
 			throws TaskException, EmployeeException {
 		var generalResponse = new GeneralResponse();
-
-		generalResponse.setData(taskService.getTaskById(taskId));
+		
+		generalResponse.setData(taskService.updateTask(taskId,task));
 		generalResponse.setMessage("Task Found with id:" + taskId);
 		return ResponseEntity.ok(generalResponse);
 	}

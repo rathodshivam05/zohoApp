@@ -1,7 +1,12 @@
 package com.clayfin.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,12 +51,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public Employee updateEmployee(Integer employeeId, Employee employee) throws EmployeeException {
-
-		if (repoHelper.isEmployeeExist(employeeId))
-			return employeeRepo.save(employee);
+		Employee employee1 = getEmployeeById(employeeId);
+		if (repoHelper.isEmployeeExist(employeeId)) {
+			BeanUtils.copyProperties(employee, employee1, getNullPropertyNames(employee));
+			return employeeRepo.save(employee1);
+		}
 		else
 			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
 	}
+	
+	
+	private String[] getNullPropertyNames(Object source) {
+        final BeanWrapper src = new BeanWrapperImpl(source);
+        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
+
+        Set<String> emptyNames = new HashSet<>();
+        for (java.beans.PropertyDescriptor pd : pds) {
+            Object srcValue = src.getPropertyValue(pd.getName());
+            if (srcValue == null) emptyNames.add(pd.getName());
+        }
+
+        String[] result = new String[emptyNames.size()];
+        return emptyNames.toArray(result);
+    }
 
 	@Override
 	public Employee getEmployeeById(Integer employeeId) throws EmployeeException {
@@ -176,9 +198,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public Employee updateSkillSet(Integer employeeId, List<String> skills) throws EmployeeException {
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
-
-		employee.setSkillSet(skills);
-
+		
+            List<String> skillSet = employee.getSkillSet();
+            skills.forEach(i -> skillSet.add(i));
+            employee.setSkillSet(skillSet);
 		return employeeRepo.save(employee);
 	}
 	

@@ -3,8 +3,13 @@ package com.clayfin.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,15 +58,47 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 		return attendances;
 	}
+	
+	@Override
+	public Attendance getAttendanceByAttendanceId(Integer attendanceId) throws AttendanceException {
+		Attendance attendance = attendanceRepo.findById(attendanceId).orElseThrow(
+				() -> new AttendanceException(Constants.ATTENDANCE_NOT_FOUND_WITH_ATTENDANCE_ID + attendanceId));
+		
 
+		return attendance;
+	}
+	
+	
 	@Override
 	public Attendance updateAttendance(Integer attendanceId, Attendance attendance) throws AttendanceException {
 
 		if (!isAttendanceExist(attendanceId))
 			throw new AttendanceException(Constants.ATTENDANCE_NOT_FOUND_WITH_ATTENDANCE_ID + attendanceId);
-		return attendanceRepo.save(attendance);
+		
+		Attendance attendance1 = getAttendanceByAttendanceId(attendanceId);
+
+		BeanUtils.copyProperties(attendance,attendance1, getNullPropertyNames(attendance));
+		return attendanceRepo.save(attendance1);
 
 	}
+	
+	private String[] getNullPropertyNames(Object source) {
+		final BeanWrapper src = new BeanWrapperImpl(source);
+		java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
+
+		Set<String> emptyNames = new HashSet<>();
+		for (java.beans.PropertyDescriptor pd : pds) {
+			Object srcValue = src.getPropertyValue(pd.getName());
+			if (srcValue == null)
+				emptyNames.add(pd.getName());
+		}
+
+		String[] result = new String[emptyNames.size()];
+		return emptyNames.toArray(result);
+	}
+
+	
+
 
 	@Override
 	public Attendance deleteAttendance(Integer attendanceId) throws AttendanceException {

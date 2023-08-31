@@ -2,6 +2,7 @@ package com.clayfin.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,4 +18,6 @@ public interface AttendenceRepo extends JpaRepository<Attendance, Integer> {
 	Attendance findTopByEmployeeEmployeeIdOrderByEmployeeEmployeeIdDesc(Integer employeeId);
 	
 	Attendance findTopByEmployeeEmployeeIdOrderByCheckInTimestampDesc(Integer employeeId);
+
+	Attendance save(Optional<Attendance> attendance1);
 }

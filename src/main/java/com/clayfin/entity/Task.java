@@ -12,12 +12,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Task {
 
 	@Id
@@ -29,7 +33,7 @@ public class Task {
 	@Enumerated(EnumType.STRING)
 	private TaskStatus status;
 	
-	@ManyToOne
+	@ManyToOne()
 	@JoinColumn(name="assinged_employee")
 	private Employee employee;
 	
