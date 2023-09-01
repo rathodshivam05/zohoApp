@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import com.clayfin.service.EmployeeService;
 
 @RestController
 @RequestMapping("/employee")
+@CrossOrigin
 public class EmployeeController {
 
 	@Autowired
@@ -72,7 +74,6 @@ public class EmployeeController {
 	ResponseEntity<GeneralResponse> deleteEmployee(@PathVariable Integer employeeId) throws EmployeeException {
 
 		var generalResponse = new GeneralResponse();
-
 		generalResponse.setMessage("Employee Deleted");
 		generalResponse.setData(employeeService.deleteEmployee(employeeId));
 
@@ -88,6 +89,8 @@ public class EmployeeController {
 
 		return ResponseEntity.ok(generalResponse);
 	}
+	
+	
 	
 	@GetMapping("/getEmployeeProfileByEmployeeId/{employeeId}")
 	ResponseEntity<GeneralResponse> getEmployeeProfileByEmployeeId(@PathVariable Integer employeeId) throws EmployeeException {

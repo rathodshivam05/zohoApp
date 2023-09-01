@@ -47,6 +47,24 @@ public class AttendanceServiceImpl implements AttendanceService {
 		return attendances;
 
 	}
+	
+//	@Override
+//	public List<Attendance> getAttendanceByMonthAndEmployeeId(Integer employeeId)
+//			throws AttendanceException, EmployeeException {
+//		List<Attendance> attendances = attendanceRepo.findByEmployeeEmployeeIdAndMonth(employeeId);
+//
+//		if (attendances.isEmpty())
+//			throw new AttendanceException(Constants.ATTENDANCE_NOT_FOUND_WITH_ID + employeeId);
+//
+//		return attendances;
+//	}
+	
+	@Override
+	public List<Attendance> getAttendanceByMonthAndEmployeeId(Integer employeeId)
+			throws AttendanceException, EmployeeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public List<Attendance> getAttendanceByEmployeeId(Integer employeeId)

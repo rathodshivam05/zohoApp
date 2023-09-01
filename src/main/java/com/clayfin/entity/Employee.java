@@ -49,6 +49,7 @@ public class Employee {
 	private EmployeeProfile employeeProfile;
 
 	@ManyToOne
+	@JsonIgnore
 	private Employee manager;
 
 	@JsonIgnore
@@ -72,6 +73,7 @@ public class Employee {
 	private List<RegularizationRequest> reguralizations;
 
 	@ElementCollection
+	@JsonIgnore
 	private List<String> skillSet;
 	
 	

@@ -83,10 +83,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public Employee deleteEmployee(Integer employeeId) throws EmployeeException {
-
 		Employee employee = getEmployeeById(employeeId);
-		employeeRepo.delete(employee);
-
+		employeeRepo.deleteById(employeeId);
 		return employee;
 	}
 

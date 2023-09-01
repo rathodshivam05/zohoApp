@@ -29,5 +29,8 @@ public interface AttendanceService {
 	Attendance regularize(Integer employeeId,LocalDate date,LocalDateTime fromTime,LocalDateTime toTime) throws AttendanceException,EmployeeException;
 	
 	Attendance getAttendanceByAttendanceId(Integer attendanceId) throws AttendanceException;
+
+	List<Attendance> getAttendanceByMonthAndEmployeeId(Integer employeeId)
+			throws AttendanceException, EmployeeException;
 	
 }
