@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.clayfin.dto.DayAttendanceDto;
 import com.clayfin.entity.Attendance;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
@@ -30,7 +31,7 @@ public interface AttendanceService {
 	
 	Attendance getAttendanceByAttendanceId(Integer attendanceId) throws AttendanceException;
 
-	List<Attendance> getAttendanceByMonthAndEmployeeId(Integer employeeId)
-			throws AttendanceException, EmployeeException;
+	List<DayAttendanceDto> getAttendanceByMonthAndEmployeeId(Integer month, Integer year, Integer employeeId)throws AttendanceException,EmployeeException;
+
 	
 }

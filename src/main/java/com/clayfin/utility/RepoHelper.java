@@ -9,9 +9,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.clayfin.dto.DayAttendanceDto;
 import com.clayfin.dto.RegularizeDTO;
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
+import com.clayfin.enums.AttendanceStatus;
 import com.clayfin.enums.RoleType;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
@@ -20,6 +22,8 @@ import com.clayfin.repository.AttendenceRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.repository.LeaveRepo;
 import com.clayfin.repository.TaskRepo;
+
+import ch.qos.logback.core.model.INamedModel;
 
 @Component
 public class RepoHelper {
@@ -35,14 +39,10 @@ public class RepoHelper {
 
 	@Autowired
 	private AttendenceRepo attendanceRepo;
-	
-
 
 	public Boolean isEmployeeExist(Integer employeeId) {
 		return employeeRepo.findById(employeeId).isPresent();
 	}
-	
-	
 
 	public Boolean isLeaveExist(Integer leaveId) {
 		return leaveRepo.findById(leaveId).isPresent();
@@ -70,11 +70,8 @@ public class RepoHelper {
 
 		int hours = (int) duration.toHoursPart();
 		int minutes = (int) duration.toMinutesPart();
-
-		System.out.println("Hours :" + hours);
-		System.out.println("Minutes : " + minutes);
-
-		return LocalTime.of(hours, minutes);
+		int seconds = (int) duration.toSecondsPart();
+		return LocalTime.of(hours, minutes, seconds);
 	}
 
 	public boolean isValidRegularizationRequest(RegularizeDTO dto, Integer employeeId)
@@ -101,7 +98,8 @@ public class RepoHelper {
 			if (spentHours.getHour() > 2)
 				throw new AttendanceException(Constants.NOT_REGURALIZABLE);
 
-			List<Attendance> alreadyPresentAttendance = attendanceRepo.findByEmployeeEmployeeIdAndDate(employeeId,date);
+			List<Attendance> alreadyPresentAttendance = attendanceRepo.findByEmployeeEmployeeIdAndDate(employeeId,
+					date);
 
 			System.out.println(alreadyPresentAttendance.size() + "  attendances Found ");
 
@@ -124,23 +122,80 @@ public class RepoHelper {
 
 		return true;
 	}
-	
-	
+
 	public Boolean isValidManager(Integer managerId) {
-		
+
 		try {
-			
-		Employee employee=	employeeRepo.findById(managerId)
-			.orElseThrow(()->new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+managerId));
-		
-		if(!employee.getRole().equals(RoleType.ROLE_MANAGER))
-			return false;
-			
-		}catch(Exception e) {
+
+			Employee employee = employeeRepo.findById(managerId)
+					.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + managerId));
+
+			if (!employee.getRole().equals(RoleType.ROLE_MANAGER))
+				return false;
+
+		} catch (Exception e) {
 			return false;
 		}
-		
+
 		return true;
+	}
+
+	public Integer getDaysInMonth(Integer month, Integer year) {
+		Integer days = null;
+		if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+			days = 31;
+		} else if (month == 4 || month == 6 || month == 9 || month == 11) {
+			days = 30;
+		} else {
+			if (month == 2) {
+				if (year % 400 == 0 && year % 100 == 0) {
+					days = 29;
+				} else {
+					if (year % 4 == 0 && year % 100 != 0) {
+						days = 29;
+					} else
+						days = 28;
+				}
+			}
+
+		}
+
+		return days;
+	}
+
+	@SuppressWarnings("null")
+	public DayAttendanceDto getTotalTimeInDay(LocalDate date, Integer employeeId) {
+		DayAttendanceDto attendanceDto = new DayAttendanceDto();
+		List<Attendance> attendances = attendanceRepo.findByEmployeeEmployeeIdAndDate(employeeId, date);
+
+		if (attendances.size() == 0) {
+			String dayOfWeek = date.getDayOfWeek().toString();
+			if (dayOfWeek.equals("SUNDAY") || dayOfWeek.equals("SATURDAY")) {
+				attendanceDto.setStatus(AttendanceStatus.HOLIDAY);
+			} else {
+				attendanceDto.setStatus(AttendanceStatus.ABSENT);
+			}
+			attendanceDto.setDate(date);
+			attendanceDto.setTotalHoursInADay(null);
+			return attendanceDto;
+		} else {
+		
+			Integer hours = 0;
+			Integer minutes = 0;
+			Integer seconds = 0;
+			
+			for (Attendance attendance : attendances) {
+				LocalTime time = attendance.getSpentHours();
+				hours+=time.getHour();
+				minutes+=time.getMinute();
+				seconds+=time.getSecond();			}
+			attendanceDto.setDate(date);
+			LocalTime totalTime = LocalTime.of(hours, minutes, seconds);
+			attendanceDto.setTotalHoursInADay(totalTime);
+			attendanceDto.setStatus(AttendanceStatus.PRESENT);
+			return attendanceDto;
+		}
+
 	}
 
 }

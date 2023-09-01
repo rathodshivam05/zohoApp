@@ -3,6 +3,7 @@ package com.clayfin.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.clayfin.dto.DayAttendanceDto;
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
 import com.clayfin.exception.AttendanceException;
@@ -47,29 +49,15 @@ public class AttendanceServiceImpl implements AttendanceService {
 		return attendances;
 
 	}
+
 	
-//	@Override
-//	public List<Attendance> getAttendanceByMonthAndEmployeeId(Integer employeeId)
-//			throws AttendanceException, EmployeeException {
-//		List<Attendance> attendances = attendanceRepo.findByEmployeeEmployeeIdAndMonth(employeeId);
-//
-//		if (attendances.isEmpty())
-//			throw new AttendanceException(Constants.ATTENDANCE_NOT_FOUND_WITH_ID + employeeId);
-//
-//		return attendances;
-//	}
 	
-	@Override
-	public List<Attendance> getAttendanceByMonthAndEmployeeId(Integer employeeId)
-			throws AttendanceException, EmployeeException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public List<Attendance> getAttendanceByEmployeeId(Integer employeeId)
 			throws AttendanceException, EmployeeException {
-		List<Attendance> attendances = attendanceRepo.findByEmployeeEmployeeId(employeeId);
+		LocalDate date = LocalDate.now();
+		List<Attendance> attendances = getAttendanceByDateAndEmployeeId(date,employeeId);
 
 		if (attendances.isEmpty())
 			throw new AttendanceException(Constants.ATTENDANCE_NOT_FOUND_WITH_ID + employeeId);
@@ -192,6 +180,27 @@ public class AttendanceServiceImpl implements AttendanceService {
 		return attendanceRepo.findById(attendanceId).isPresent();
 
 	}
+	
+	@Override
+	public List<DayAttendanceDto> getAttendanceByMonthAndEmployeeId(Integer month, Integer year, Integer employeeId)
+			throws AttendanceException, EmployeeException {
+		
+		
+		Integer days = repoHelper.getDaysInMonth(month, year);
+		
+		List<DayAttendanceDto> attendances = new ArrayList<>();
+		for(int i=1;i<=days;i++) {
+			LocalDate date = LocalDate.of(year, month, i);
+		    DayAttendanceDto attendance = repoHelper.getTotalTimeInDay(date, employeeId);
+		    attendances.add(attendance);
+		}
+		return attendances;
+	}
+	
+	
+	
+	
+	
 
 	@Override
 	public Attendance checkInAttendance(Integer employeeId) throws EmployeeException, AttendanceException {
@@ -235,10 +244,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 		if (lastAttendance != null && lastAttendance.getCheckOutTimestamp() == null) {
 			lastAttendance.setCheckOutTimestamp(LocalDateTime.now());
-
+			//modifications
 			LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(lastAttendance.getCheckInTimestamp(),
 					lastAttendance.getCheckOutTimestamp());
-
+			System.out.println(spentTime);
+			
 			lastAttendance.setSpentHours(spentTime);
 
 		} else

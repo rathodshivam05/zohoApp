@@ -64,6 +64,23 @@ public class AttendanceController {
 
 		return ResponseEntity.ok(generalResponse);
 	}
+	
+	
+	
+	
+	@GetMapping("/getAttendanceByMonthAndEmployeeId/{year}/{month}/{employeeId}")
+	ResponseEntity<GeneralResponse> getAttendanceByMonthAndEmployeeId(@PathVariable Integer month,@PathVariable Integer year,
+			@PathVariable Integer employeeId) throws EmployeeException, AttendanceException {
+
+		var generalResponse = new GeneralResponse();
+
+		generalResponse.setMessage("Attendance Found By Month and Employee Id : " + month + " " + employeeId);
+		generalResponse.setData(attendanceService.getAttendanceByMonthAndEmployeeId(month,year, employeeId));
+
+		return ResponseEntity.ok(generalResponse);
+	}
+
+	
 
 	@GetMapping("/getAttendance/{employeeId}")
 	ResponseEntity<GeneralResponse> getAttendanceByEmployeeId(@PathVariable Integer employeeId)
