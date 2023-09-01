@@ -8,6 +8,7 @@ import com.clayfin.dto.DayAttendanceDto;
 import com.clayfin.entity.Attendance;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
+import com.clayfin.exception.LeaveException;
 
 public interface AttendanceService {
 
@@ -31,7 +32,7 @@ public interface AttendanceService {
 	
 	Attendance getAttendanceByAttendanceId(Integer attendanceId) throws AttendanceException;
 
-	List<DayAttendanceDto> getAttendanceByMonthAndEmployeeId(Integer month, Integer year, Integer employeeId)throws AttendanceException,EmployeeException;
+	List<DayAttendanceDto> getAttendanceByMonthAndEmployeeId(Integer month, Integer year, Integer employeeId)throws AttendanceException,EmployeeException, LeaveException;
 
 	
 }

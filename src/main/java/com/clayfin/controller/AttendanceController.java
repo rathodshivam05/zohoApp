@@ -19,6 +19,7 @@ import com.clayfin.dto.RegularizeDTO;
 import com.clayfin.entity.Attendance;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
+import com.clayfin.exception.LeaveException;
 import com.clayfin.service.AttendanceService;
 
 @RestController
@@ -70,7 +71,7 @@ public class AttendanceController {
 	
 	@GetMapping("/getAttendanceByMonthAndEmployeeId/{year}/{month}/{employeeId}")
 	ResponseEntity<GeneralResponse> getAttendanceByMonthAndEmployeeId(@PathVariable Integer month,@PathVariable Integer year,
-			@PathVariable Integer employeeId) throws EmployeeException, AttendanceException {
+			@PathVariable Integer employeeId) throws EmployeeException, AttendanceException, LeaveException {
 
 		var generalResponse = new GeneralResponse();
 

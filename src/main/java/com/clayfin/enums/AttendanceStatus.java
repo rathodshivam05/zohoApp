@@ -1,5 +1,5 @@
 package com.clayfin.enums;
 
 public enum AttendanceStatus {
-	PRESENT,ABSENT,HOLIDAY
+	PRESENT,ABSENT,HOLIDAY,LEAVE,COUNTING,NULL
 }

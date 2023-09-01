@@ -13,17 +13,18 @@ import com.clayfin.dto.DayAttendanceDto;
 import com.clayfin.dto.RegularizeDTO;
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
+import com.clayfin.entity.LeaveRecord;
 import com.clayfin.enums.AttendanceStatus;
+import com.clayfin.enums.LeaveStatus;
 import com.clayfin.enums.RoleType;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
+import com.clayfin.exception.LeaveException;
 import com.clayfin.exception.RegularizationException;
 import com.clayfin.repository.AttendenceRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.repository.LeaveRepo;
 import com.clayfin.repository.TaskRepo;
-
-import ch.qos.logback.core.model.INamedModel;
 
 @Component
 public class RepoHelper {
@@ -164,7 +165,8 @@ public class RepoHelper {
 	}
 
 	@SuppressWarnings("null")
-	public DayAttendanceDto getTotalTimeInDay(LocalDate date, Integer employeeId) {
+	public DayAttendanceDto getTotalTimeInDay(LocalDate date, Integer employeeId)
+			throws EmployeeException, LeaveException {
 		DayAttendanceDto attendanceDto = new DayAttendanceDto();
 		List<Attendance> attendances = attendanceRepo.findByEmployeeEmployeeIdAndDate(employeeId, date);
 
@@ -173,26 +175,49 @@ public class RepoHelper {
 			if (dayOfWeek.equals("SUNDAY") || dayOfWeek.equals("SATURDAY")) {
 				attendanceDto.setStatus(AttendanceStatus.HOLIDAY);
 			} else {
-				attendanceDto.setStatus(AttendanceStatus.ABSENT);
+
+				List<LeaveRecord> leaves = leaveRepo.findByEmployeeEmployeeId(employeeId);
+
+				for (LeaveRecord leave : leaves) {
+					if ((date.isAfter(leave.getStartDate()) && date.isBefore(leave.getEndDate()) || (date.isEqual(leave.getStartDate()) || date.isEqual(leave.getEndDate()))) && leave.getStatus().equals(LeaveStatus.APPROVED)) {
+						attendanceDto.setStatus(AttendanceStatus.LEAVE);
+						
+
+					} else {
+						if(date.isBefore(LocalDate.now())) {
+							attendanceDto.setStatus(AttendanceStatus.ABSENT);
+						}else {
+							attendanceDto.setStatus(AttendanceStatus.NULL);
+						}
+						
+					}
+				}
+
+				
 			}
 			attendanceDto.setDate(date);
 			attendanceDto.setTotalHoursInADay(null);
 			return attendanceDto;
 		} else {
-		
+
 			Integer hours = 0;
 			Integer minutes = 0;
 			Integer seconds = 0;
-			
+
 			for (Attendance attendance : attendances) {
 				LocalTime time = attendance.getSpentHours();
-				hours+=time.getHour();
-				minutes+=time.getMinute();
-				seconds+=time.getSecond();			}
+				hours += time.getHour();
+				minutes += time.getMinute();
+				seconds += time.getSecond();
+			}
 			attendanceDto.setDate(date);
 			LocalTime totalTime = LocalTime.of(hours, minutes, seconds);
 			attendanceDto.setTotalHoursInADay(totalTime);
-			attendanceDto.setStatus(AttendanceStatus.PRESENT);
+			if (date.isEqual(LocalDate.now())) {
+				attendanceDto.setStatus(AttendanceStatus.COUNTING);
+			} else {
+				attendanceDto.setStatus(AttendanceStatus.PRESENT);
+			}
 			return attendanceDto;
 		}
 

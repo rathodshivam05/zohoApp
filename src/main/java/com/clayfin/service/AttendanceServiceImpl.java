@@ -19,6 +19,7 @@ import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
+import com.clayfin.exception.LeaveException;
 import com.clayfin.repository.AttendenceRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.utility.Constants;
@@ -183,7 +184,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 	
 	@Override
 	public List<DayAttendanceDto> getAttendanceByMonthAndEmployeeId(Integer month, Integer year, Integer employeeId)
-			throws AttendanceException, EmployeeException {
+			throws AttendanceException, EmployeeException, LeaveException {
 		
 		
 		Integer days = repoHelper.getDaysInMonth(month, year);
