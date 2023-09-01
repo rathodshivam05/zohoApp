@@ -105,7 +105,7 @@ public class RepoHelper {
 			System.out.println(alreadyPresentAttendance.size() + "  attendances Found ");
 
 			for (int i = 0; i < alreadyPresentAttendance.size() - 2; i++) {
-				if (alreadyPresentAttendance.get(i).getCheckOutTimestamp().isBefore(fromTime)
+				if (alreadyPresentAttendance.get(i).getCheckOutTimestamp().isAfter(fromTime)
 						&& alreadyPresentAttendance.get(i + 1).getCheckInTimestamp().isAfter(toTime))
 					return true;
 			}
