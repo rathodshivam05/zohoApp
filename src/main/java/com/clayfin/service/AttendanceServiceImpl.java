@@ -1,7 +1,6 @@
 package com.clayfin.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,6 +23,9 @@ import com.clayfin.repository.AttendenceRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
@@ -70,8 +72,6 @@ public class AttendanceServiceImpl implements AttendanceService {
 	public Attendance getAttendanceByAttendanceId(Integer attendanceId) throws AttendanceException {
 		Attendance attendance = attendanceRepo.findById(attendanceId).orElseThrow(
 				() -> new AttendanceException(Constants.ATTENDANCE_NOT_FOUND_WITH_ATTENDANCE_ID + attendanceId));
-		
-
 		return attendance;
 	}
 	
@@ -117,7 +117,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 	}
 
 	@Override
-	public Attendance regularize(Integer employeeId, LocalDate date, LocalDateTime fromTime, LocalDateTime toTime)
+	public Attendance regularize(Integer employeeId, LocalDate date, LocalTime fromTime, LocalTime toTime)
 			throws AttendanceException, EmployeeException {
 
 		LocalTime spentHours = repoHelper.findTimeBetweenTimestamps(fromTime, toTime);
@@ -199,8 +199,15 @@ public class AttendanceServiceImpl implements AttendanceService {
 	}
 	
 	
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	public Attendance findByUserId(Integer id) {
+        return   (entityManager.createQuery("SELECT p FROM Attendance p WHERE p.employee.id = :id ORDER BY p.id DESC",
+        		Attendance.class).setParameter("id", id).setMaxResults(1).getResultList()).get(0);
+    }
 	
-	
+
 	
 
 	@Override
@@ -209,8 +216,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
 
-		Attendance lastAttendance = attendanceRepo.findTopByEmployeeEmployeeIdOrderByCheckInTimestampDesc(employeeId);
-		
+		Attendance lastAttendance =  findByUserId(employeeId);
 		if(lastAttendance!=null && lastAttendance.getCheckOutTimestamp()==null)
 			throw new AttendanceException("CheckOut First To Check In");
 
@@ -218,7 +224,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 		if (lastAttendance == null) {
 
-			attendance.setCheckInTimestamp(LocalDateTime.now());
+			attendance.setCheckInTimestamp(LocalTime.now());
 			attendance.setDate(LocalDate.now());
 			attendance.setEmployee(employee);
 			return attendanceRepo.save(attendance);
@@ -228,7 +234,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 		if (lastAttendance.getCheckOutTimestamp() == null)
 			throw new AttendanceException("Need to CheckOut before CheckIn ");
 
-		attendance.setCheckInTimestamp(LocalDateTime.now());
+		attendance.setCheckInTimestamp(LocalTime.now());
 		attendance.setDate(LocalDate.now());
 		attendance.setEmployee(employee);
 		return attendanceRepo.save(attendance);
@@ -241,14 +247,13 @@ public class AttendanceServiceImpl implements AttendanceService {
 		if (!repoHelper.isEmployeeExist(employeeId))
 			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
 
-		Attendance lastAttendance = attendanceRepo.findTopByEmployeeEmployeeIdOrderByCheckInTimestampDesc(employeeId);
-
+		Attendance lastAttendance =  findByUserId(employeeId);
 		if (lastAttendance != null && lastAttendance.getCheckOutTimestamp() == null) {
-			lastAttendance.setCheckOutTimestamp(LocalDateTime.now());
+			lastAttendance.setCheckOutTimestamp(LocalTime.now());
 			//modifications
 			LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(lastAttendance.getCheckInTimestamp(),
 					lastAttendance.getCheckOutTimestamp());
-			System.out.println(spentTime);
+			
 			
 			lastAttendance.setSpentHours(spentTime);
 

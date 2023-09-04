@@ -65,9 +65,9 @@ public class RepoHelper {
 		return false;
 	}
 
-	public LocalTime findTimeBetweenTimestamps(LocalDateTime fromTime, LocalDateTime toTime) {
+	public LocalTime findTimeBetweenTimestamps(LocalTime localTime, LocalTime localTime2) {
 
-		Duration duration = Duration.between(fromTime, toTime);
+		Duration duration = Duration.between(localTime, localTime2);
 
 		int hours = (int) duration.toHoursPart();
 		int minutes = (int) duration.toMinutesPart();
@@ -79,8 +79,8 @@ public class RepoHelper {
 			throws RegularizationException, AttendanceException, EmployeeException {
 
 		try {
-			LocalDateTime fromTime = dto.getFromTime();
-			LocalDateTime toTime = dto.getToTime();
+			LocalTime fromTime = dto.getFromTime();
+			LocalTime toTime = dto.getToTime();
 
 			LocalDate date = dto.getDate();
 
@@ -112,7 +112,7 @@ public class RepoHelper {
 
 			Integer lastAttendanceIndex = alreadyPresentAttendance.size() - 1;
 
-			LocalDateTime lastCheckOutTime = alreadyPresentAttendance.get(lastAttendanceIndex).getCheckOutTimestamp();
+			LocalTime lastCheckOutTime = alreadyPresentAttendance.get(lastAttendanceIndex).getCheckOutTimestamp();
 
 			if (lastCheckOutTime != null && lastCheckOutTime.isBefore(fromTime))
 				return true;
@@ -123,6 +123,7 @@ public class RepoHelper {
 
 		return true;
 	}
+
 
 	public Boolean isValidManager(Integer managerId) {
 

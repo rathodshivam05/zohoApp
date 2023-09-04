@@ -2,8 +2,14 @@ package com.clayfin.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import com.clayfin.enums.RegularizationStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,8 +34,15 @@ public class RegularizationRequest {
 	private RegularizationStatus status;
 	
 	private LocalDate date;
-	private LocalDateTime checkInTimestamp;
-	private LocalDateTime CheckOutTimestamp;
+	
+	@JsonDeserialize(using = LocalTimeDeserializer.class)
+	@JsonSerialize(using = LocalTimeSerializer.class)
+	
+	
+	@JsonIgnore
+	private LocalTime checkInTimestamp;
+	
+	private LocalTime CheckOutTimestamp;
 	
 
 

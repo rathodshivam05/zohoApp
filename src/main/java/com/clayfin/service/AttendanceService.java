@@ -2,6 +2,7 @@ package com.clayfin.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.clayfin.dto.DayAttendanceDto;
@@ -28,7 +29,7 @@ public interface AttendanceService {
 	Attendance deleteAttendance(Integer attendanceId) throws AttendanceException;
 	
 	
-	Attendance regularize(Integer employeeId,LocalDate date,LocalDateTime fromTime,LocalDateTime toTime) throws AttendanceException,EmployeeException;
+	Attendance regularize(Integer employeeId,LocalDate date,LocalTime fromTime,LocalTime toTime) throws AttendanceException,EmployeeException;
 	
 	Attendance getAttendanceByAttendanceId(Integer attendanceId) throws AttendanceException;
 

@@ -1,8 +1,9 @@
 package com.clayfin.entity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,8 +23,11 @@ public class Attendance{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer attendanceId;
 	private LocalDate date;
-	private LocalDateTime checkInTimestamp;
-	private LocalDateTime CheckOutTimestamp;
+	
+	
+	private LocalTime checkInTimestamp;
+	
+	private LocalTime CheckOutTimestamp;
 	private LocalTime spentHours;
 	
 	

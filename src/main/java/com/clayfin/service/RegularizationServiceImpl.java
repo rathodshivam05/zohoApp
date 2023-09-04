@@ -39,15 +39,17 @@ public class RegularizationServiceImpl implements RegularizationService {
 	@Override
 	public RegularizationRequest addRegularizationRequest(RegularizeDTO request, Integer employeeId)
 			throws AttendanceException, EmployeeException, RegularizationException {
-
+		System.out.println(request);
 		Boolean isValid = repoHelper.isValidRegularizationRequest(request, employeeId);
-
+		
 		if (!isValid)
 			throw new RegularizationException("Not A valid Regularization Request ");
-
-		if (request.getFromTime().getDayOfYear() != request.getToTime().getDayOfYear()
-				|| request.getDate().getDayOfYear() != request.getToTime().getDayOfYear())
-			throw new RegularizationException("Invalid Dates Provided ");
+//
+//		if (request.getDate().getDayOfYear() != request.getToTime().getDayOfYear()
+//				|| request.getDate().getDayOfYear() != request.getToTime().getDayOfYear())
+//			throw new RegularizationException("Invalid Dates Provided ");
+//		
+		
 		
 		
 		Employee employee = employeeRepo.findById(employeeId)
