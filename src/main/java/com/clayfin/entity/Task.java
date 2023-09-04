@@ -3,6 +3,7 @@ package com.clayfin.entity;
 import java.time.LocalDateTime;
 
 import com.clayfin.enums.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,6 +36,7 @@ public class Task {
 	
 	@ManyToOne()
 	@JoinColumn(name="assinged_employee")
+	@JsonIgnore
 	private Employee employee;
 	
 	

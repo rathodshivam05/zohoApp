@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.clayfin.enums.LeaveStatus;
 import com.clayfin.enums.LeaveType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -38,6 +39,7 @@ public class LeaveRecord {
 	private String reason;
 
 	@ManyToOne
+	@JsonIgnore
 	private Employee employee;
 
 }

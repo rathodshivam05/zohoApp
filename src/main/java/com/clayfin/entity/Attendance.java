@@ -3,6 +3,8 @@ package com.clayfin.entity;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,6 +34,7 @@ public class Attendance{
 
 	@ManyToOne
 	@JoinColumn(name="employee_id")
+	@JsonIgnore
 	private Employee employee;
 	
 
