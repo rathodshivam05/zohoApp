@@ -139,6 +139,12 @@ public class EmployeeProfile {
 	
 	private String reportingTo;
 	
+
+	private String nationality;
+	
+	private String religion;
+	
+
 	@OneToOne()
 	private Employee employee;
 	

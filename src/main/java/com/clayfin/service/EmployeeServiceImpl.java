@@ -187,6 +187,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 		employee.setManager(manager);
 
+		employee.setReportingTo(manager.getUsername());
+
 		employeeRepo.save(employee);
 
 		return employee;

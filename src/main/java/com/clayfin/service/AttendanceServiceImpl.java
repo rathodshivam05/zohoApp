@@ -241,6 +241,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 	}
 
+	public Attendance findByUserIdFirstRecord(Integer id) {
+        return   (entityManager.createQuery("SELECT p FROM Attendance p WHERE p.employee.id = :id ORDER BY p.id ",
+        		Attendance.class).setParameter("id", id).setMaxResults(1).getResultList()).get(0);
+    }
+
 	@Override
 	public Attendance checkOutAttendance(Integer employeeId) throws AttendanceException, EmployeeException {
 
@@ -248,19 +253,33 @@ public class AttendanceServiceImpl implements AttendanceService {
 			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
 
 		Attendance lastAttendance =  findByUserId(employeeId);
+		Attendance firstAttendance = getAttendanceByDateAndEmployeeId(lastAttendance.getDate(), employeeId).get(0);
 		if (lastAttendance != null && lastAttendance.getCheckOutTimestamp() == null) {
-			lastAttendance.setCheckOutTimestamp(LocalTime.now());
+			if(LocalDate.now().isEqual(lastAttendance.getDate())) {
+				lastAttendance.setCheckOutTimestamp(LocalTime.now());
+			}
+			else {
+				//Attendance firstAttendance = findByUserIdFirstRecord(employeeId);
+				
+				LocalTime firstTime = firstAttendance.getCheckInTimestamp().plusHours(4);
+				 LocalTime time = LocalTime.parse("03:18:23");
+				lastAttendance.setCheckOutTimestamp(firstTime);
+				System.out.println("Half day Absent");
+			}
 			//modifications
-			LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(lastAttendance.getCheckInTimestamp(),
+			LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(firstAttendance.getCheckInTimestamp(),
 					lastAttendance.getCheckOutTimestamp());
-			
-			
+
 			lastAttendance.setSpentHours(spentTime);
 
 		} else
 			throw new AttendanceException("You Have To Check In First To CheckOut");
 
+		System.out.println(lastAttendance);
+
 		return attendanceRepo.save(lastAttendance);
 	}
+
+
 
 }

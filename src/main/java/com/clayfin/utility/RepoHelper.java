@@ -71,7 +71,8 @@ public class RepoHelper {
 
 		int hours = (int) duration.toHoursPart();
 		int minutes = (int) duration.toMinutesPart();
-		int seconds = (int) duration.toSecondsPart();
+		int seconds = (int) duration.toSecondsPart();							
+
 		return LocalTime.of(hours, minutes, seconds);
 	}
 

@@ -34,7 +34,10 @@ public class Employee {
 	private String username;
 
 	private String email;
+
+	private String reportingTo;
 	
+	private String Title;
 	
 	
 
@@ -75,6 +78,5 @@ public class Employee {
 	@ElementCollection
 	@JsonIgnore
 	private List<String> skillSet;
-	
-	
+
 }
