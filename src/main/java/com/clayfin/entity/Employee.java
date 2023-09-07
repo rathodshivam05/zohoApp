@@ -1,8 +1,10 @@
 package com.clayfin.entity;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.clayfin.enums.RoleType;
+import com.clayfin.enums.TitleType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -37,9 +39,10 @@ public class Employee {
 
 	private String reportingTo;
 	
-	private String Title;
-	
-	
+	@Enumerated(EnumType.STRING)
+	private TitleType Title;
+		
+	private LocalDate joiningDate;
 
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
@@ -78,5 +81,8 @@ public class Employee {
 	@ElementCollection
 	@JsonIgnore
 	private List<String> skillSet;
+	
+	
+	
 
 }

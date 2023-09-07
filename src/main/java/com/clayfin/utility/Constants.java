@@ -3,6 +3,11 @@ package com.clayfin.utility;
 public interface Constants {
 
 	String EMPLOYEE_NOT_FOUND_WITH_ID = " Employee Not Found With Employee Id ";
+	String Hr_NOT_FOUND_WITH_ID = "HR Not Found with id : ";
+	String MANAGER_NOT_FOUND_WITH_ID = "Manager Not Found with id : ";
+	
+	String CANDIDATE_NOT_FOUND_WITH_ID = " Candidate Not Found With Candidate Id ";
+	String NOT_VALID_HR = "You are not a valid HR to add an employee";
 	String EMPLOYEE_NOT_FOUND_WITH_EMAIL = " Employee Not Found With Employee Email ";
 	String ATTENDANCE_NOT_FOUND_WITH_ID = " Attendance Not Found With Attendance Id ";
 	String TASK_NOT_FOUND_WITH_ID = " Task Not Found With Task Id ";
@@ -37,4 +42,6 @@ public interface Constants {
 	String YOU_ARE_NOT_A_MANAGER = " You are Not a Manager";
 
 	String REGULARIZATION_REQUEST_NOT_FOUND = " Regularization Request Not Found ";
+	
+	
 }

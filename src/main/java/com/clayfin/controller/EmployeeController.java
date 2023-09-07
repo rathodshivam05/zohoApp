@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clayfin.dto.EmployeeDto;
 import com.clayfin.dto.GeneralResponse;
 import com.clayfin.entity.Employee;
 import com.clayfin.entity.EmployeeProfile;
@@ -36,12 +37,12 @@ public class EmployeeController {
 		return "Hello WOrld ";
 	}
 
-	@PostMapping("/addEmployee")
-	ResponseEntity<GeneralResponse> addEmployee(@RequestBody Employee employee) throws EmployeeException {
+	@PostMapping("/addEmployee/{hrId}")
+	ResponseEntity<GeneralResponse> addEmployee(@RequestBody Employee employee,@PathVariable Integer hrId) throws EmployeeException {
 
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("Employee Added");
-		generalResponse.setData(employeeService.addEmployee(employee));
+		generalResponse.setData(employeeService.addEmployee(employee,hrId));
 
 		return ResponseEntity.ok(generalResponse);
 	}
@@ -58,13 +59,13 @@ public class EmployeeController {
 		return ResponseEntity.ok(generalResponse);
 	}
 	
-	@PutMapping("/updateManagerToEmployee/{employeeId}/{managerId}")
-	ResponseEntity<GeneralResponse> setManagerToEmployee(Integer employeeId,Integer managerId) throws EmployeeException{
+	@PutMapping("/updateManagerToEmployeeByHr/{hrId}/{employeeId}")
+	ResponseEntity<GeneralResponse> setManagerToEmployeeByHr(@PathVariable Integer hrId,Integer employeeId,@RequestBody EmployeeDto employeeDto) throws EmployeeException{
 		
 		var generalResponse = new GeneralResponse();
 
 		generalResponse.setMessage("Employee Manager Updated");
-		generalResponse.setData(employeeService.setManagerToEmployee(employeeId, managerId));
+		generalResponse.setData(employeeService.setManagerToEmployeeByHr(employeeId, hrId,employeeDto));
 
 		return ResponseEntity.ok(generalResponse);
 	}

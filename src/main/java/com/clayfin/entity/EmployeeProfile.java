@@ -144,7 +144,9 @@ public class EmployeeProfile {
 	
 	private String religion;
 	
-
+	@OneToOne
+	private Candidate candidate;
+	
 	@OneToOne()
 	private Employee employee;
 	

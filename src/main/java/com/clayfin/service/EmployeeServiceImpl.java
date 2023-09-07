@@ -1,5 +1,6 @@
 package com.clayfin.service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,7 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.clayfin.dto.EmployeeDto;
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
 import com.clayfin.entity.EmployeeProfile;
@@ -41,11 +43,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 	private RepoHelper repoHelper;
 
 	@Override
-	public Employee addEmployee(Employee employee) throws EmployeeException {
+	public Employee addEmployee(Employee employee,Integer hrId) throws EmployeeException {
 
 		if (employee == null)
 			throw new EmployeeException();
-
+		employee.setJoiningDate(LocalDate.now());
 		return employeeRepo.save(employee);
 	}
 
@@ -169,30 +171,39 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Employee setManagerToEmployee(Integer employeeId, Integer managerId) throws EmployeeException {
-
+	public Employee setManagerToEmployeeByHr(Integer employeeId,Integer hrId,EmployeeDto employeeDto) throws EmployeeException {
+		Employee hr = employeeRepo.findById(hrId)
+				.orElseThrow(() -> new EmployeeException(Constants.Hr_NOT_FOUND_WITH_ID + employeeId));
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
-		Employee manager = employeeRepo.findById(managerId)
-				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + managerId));
+		Employee manager = employeeRepo.findById(employeeDto.getManagerId())
+				.orElseThrow(() -> new EmployeeException(Constants.MANAGER_NOT_FOUND_WITH_ID + employeeDto.getManagerId()));
 
 		if (manager.getRole() != RoleType.ROLE_MANAGER)
 			throw new EmployeeException("Manager Id Not Correct");
 
-		if (managerId == employeeId)
+		if (employeeDto.getManagerId() == employeeId)
 			throw new EmployeeException("Manager Himself Cannot me Manager");
 
 		if (employee.getManager() != null)
 			throw new EmployeeException("Employee Manager Already Exist");
+		if(hr.getRole().equals(RoleType.ROLE_HR)) {
+			employee.setManager(manager);
 
-		employee.setManager(manager);
+			employee.setReportingTo(manager.getUsername());
+			employee.setRole(employeeDto.getRole());
+			employee.setTitle(employeeDto.getTitle());
+			employeeRepo.save(employee);
 
-		employee.setReportingTo(manager.getUsername());
+			return employee;
+		}
+		else {
+			throw new EmployeeException(Constants.NOT_VALID_HR);
+		}
 
-		employeeRepo.save(employee);
-
-		return employee;
 	}
+	
+	
 
 	@Override
 	public Employee updateSkillSet(Integer employeeId, List<String> skills) throws EmployeeException {
@@ -212,6 +223,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 		else
 			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
 	}
+	
+	
 	
 	@Override
 	public EmployeeProfile addEmployeeProfileData(Integer employeeId, EmployeeProfile employeeProfile) throws EmployeeException {

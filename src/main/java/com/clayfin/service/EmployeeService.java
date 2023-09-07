@@ -2,6 +2,7 @@ package com.clayfin.service;
 
 import java.util.List;
 
+import com.clayfin.dto.EmployeeDto;
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
 import com.clayfin.entity.EmployeeProfile;
@@ -16,7 +17,7 @@ public interface EmployeeService {
 	
 	
 
-	Employee addEmployee(Employee employee) throws EmployeeException;
+	Employee addEmployee(Employee employee,Integer hrId) throws EmployeeException;
 
 	Employee updateEmployee(Integer employeeId,Employee employee) throws EmployeeException;
 
@@ -26,8 +27,7 @@ public interface EmployeeService {
 	
 	Employee getEmployeeByEmail(String email ) throws EmployeeException;
 	
-	Employee setManagerToEmployee(Integer employeeId,Integer managerId) throws EmployeeException;
-
+	
 	List<Employee> getAllEmployees() throws EmployeeException;
 
 	Employee getEmployeeManager(Integer employeeId) throws EmployeeException;
@@ -45,4 +45,9 @@ public interface EmployeeService {
 	EmployeeProfile getEmployeeProfileByEmployeeId(Integer employeeId) throws EmployeeException;
 
 	EmployeeProfile addEmployeeProfileData(Integer employeeId, EmployeeProfile employeeProfile) throws EmployeeException;
+
+	Employee setManagerToEmployeeByHr(Integer employeeId,  Integer hrId,EmployeeDto employeeDto) throws EmployeeException;
+
+	
+
 }

@@ -262,7 +262,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 				//Attendance firstAttendance = findByUserIdFirstRecord(employeeId);
 				
 				LocalTime firstTime = firstAttendance.getCheckInTimestamp().plusHours(4);
-				 LocalTime time = LocalTime.parse("03:18:23");
+				
 				lastAttendance.setCheckOutTimestamp(firstTime);
 				System.out.println("Half day Absent");
 			}
