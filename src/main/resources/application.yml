@@ -1,6 +1,6 @@
 spring:
-
   jackson:
+    time-zone: UTC
   security:
     oauth2:
       client:
@@ -20,5 +20,6 @@ spring:
             scope: openid,profile
 server:
   forward-headers-strategy: native
+
 
 

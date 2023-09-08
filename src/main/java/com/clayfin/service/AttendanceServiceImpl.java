@@ -258,6 +258,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 		if (lastAttendance != null && lastAttendance.getCheckOutTimestamp() == null) {
 			if(LocalDate.now().isEqual(lastAttendance.getDate())) {
 				lastAttendance.setCheckOutTimestamp(LocalTime.now());
+				System.out.println("in");
 			}
 			else {
 				//Attendance firstAttendance = findByUserIdFirstRecord(employeeId);
@@ -275,7 +276,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 		} else
 			throw new AttendanceException("You Have To Check In First To CheckOut");
 
-		System.out.println(lastAttendance);
+		
 
 		return attendanceRepo.save(lastAttendance);
 	}
