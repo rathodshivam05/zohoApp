@@ -1,6 +1,6 @@
 spring:
   jackson:
-    time-zone: UTC
+    time-zone: Asia/Kolkata
   security:
     oauth2:
       client:
