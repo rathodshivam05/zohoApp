@@ -279,7 +279,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 				System.out.println("Half day Absent");
 			}
 			//modifications
-			LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(firstAttendance.getCheckInTimestamp(),
+			LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(lastAttendance.getCheckInTimestamp(),
 					lastAttendance.getCheckOutTimestamp());
 
 			lastAttendance.setSpentHours(spentTime);
