@@ -2,6 +2,8 @@ package com.clayfin.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +31,10 @@ import jakarta.persistence.PersistenceContext;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
+	
+	//ZoneId zoneId = ZoneId.of("Asia/kolkata");
+	ZoneOffset zoneId = ZoneOffset.ofHoursMinutes(5, 30);
+
 
 	@Autowired
 	private AttendenceRepo attendanceRepo;
@@ -225,7 +231,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 		if (lastAttendance == null) {
 
-			attendance.setCheckInTimestamp(LocalTime.now());
+			attendance.setCheckInTimestamp(LocalTime.now(zoneId));
+			System.out.println(attendance.getCheckInTimestamp());
 			attendance.setDate(LocalDate.now());
 			attendance.setEmployee(employee);
 			return attendanceRepo.save(attendance);
@@ -235,7 +242,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 		if (lastAttendance.getCheckOutTimestamp() == null)
 			throw new AttendanceException("Need to CheckOut before CheckIn ");
 
-		attendance.setCheckInTimestamp(LocalTime.now());
+		attendance.setCheckInTimestamp(LocalTime.now(zoneId));
+		System.out.println(attendance.getCheckInTimestamp());
 		attendance.setDate(LocalDate.now());
 		attendance.setEmployee(employee);
 		return attendanceRepo.save(attendance);
@@ -257,8 +265,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 		Attendance firstAttendance = getAttendanceByDateAndEmployeeId(lastAttendance.getDate(), employeeId).get(0);
 		if (lastAttendance != null && lastAttendance.getCheckOutTimestamp() == null) {
 			if(LocalDate.now().isEqual(lastAttendance.getDate())) {
-				lastAttendance.setCheckOutTimestamp(LocalTime.now());
-				System.out.println("in");
+				
+				lastAttendance.setCheckOutTimestamp(LocalTime.now(zoneId));
+				System.out.println(lastAttendance.getCheckOutTimestamp());
+				
+				
 			}
 			else {
 				//Attendance firstAttendance = findByUserIdFirstRecord(employeeId);
