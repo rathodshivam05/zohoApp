@@ -216,7 +216,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
 
-		Attendance lastAttendance =  findByUserId(employeeId);
+		//Attendance lastAttendance =  findByUserId(employeeId);
+		Attendance lastAttendance = attendanceRepo.findTopByEmployeeEmployeeIdOrderByEmployeeEmployeeIdDesc(employeeId);
 		if(lastAttendance!=null && lastAttendance.getCheckOutTimestamp()==null)
 			throw new AttendanceException("CheckOut First To Check In");
 
@@ -262,7 +263,6 @@ public class AttendanceServiceImpl implements AttendanceService {
 				//Attendance firstAttendance = findByUserIdFirstRecord(employeeId);
 				
 				LocalTime firstTime = firstAttendance.getCheckInTimestamp().plusHours(4);
-				
 				lastAttendance.setCheckOutTimestamp(firstTime);
 				System.out.println("Half day Absent");
 			}
