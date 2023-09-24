@@ -42,12 +42,16 @@ public interface EmployeeService {
 
 	Employee updateSkillSet(Integer employeeId,List<String> skills) throws EmployeeException;
 	
+	EmployeeProfile updateEmployeeProfileByEmployeeId(Integer employeeId,EmployeeProfile employeeProfile) throws EmployeeException;
+	
+	
 	EmployeeProfile getEmployeeProfileByEmployeeId(Integer employeeId) throws EmployeeException;
 
 	EmployeeProfile addEmployeeProfileData(Integer employeeId, EmployeeProfile employeeProfile) throws EmployeeException;
 
 	Employee setManagerToEmployeeByHr(Integer employeeId,  Integer hrId,EmployeeDto employeeDto) throws EmployeeException;
-
 	
-
+	List<Employee> getAllBirthdayEmployeesBy() throws EmployeeException;
+	
+	List<Employee> getAllNewEmployees() throws EmployeeException;
 }

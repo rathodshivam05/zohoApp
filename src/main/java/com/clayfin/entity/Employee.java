@@ -3,23 +3,27 @@ package com.clayfin.entity;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
 import com.clayfin.enums.RoleType;
 import com.clayfin.enums.TitleType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,9 +36,14 @@ public class Employee {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "employee_id")
 	private Integer employeeId;
-
+	
+	@NotBlank(message = "User's name Should n't be empty.")
+	@Pattern(regexp = "^[A-Za-z]{5,15}$",message = "User's name Should Be  minimum 5 characters and maximum 15 characters")		
 	private String username;
-
+	
+	@NotBlank(message = "User's alternate email cannot be empty.")
+	@Email
+	@Column(unique = true)
 	private String email;
 
 	private String reportingTo;
@@ -43,11 +52,15 @@ public class Employee {
 	private TitleType Title;
 		
 	private LocalDate joiningDate;
-
+	
+	@Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,15}$",
+			message = " User's Password Should Be >7 and < 15 Characters and Atleast One Upper Case "
+					+ "and Atleast One Lower Case and Atleast One Digit and Atleast One Special Character" )
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
 
 	@Enumerated(EnumType.STRING)
+	@NotBlank(message = "User's role Should n't be empty.")
 	private RoleType role;
 	
 	@OneToOne(mappedBy = "employee")
@@ -81,6 +94,10 @@ public class Employee {
 	@ElementCollection
 	@JsonIgnore
 	private List<String> skillSet;
+
+	
+
+	
 	
 	
 	

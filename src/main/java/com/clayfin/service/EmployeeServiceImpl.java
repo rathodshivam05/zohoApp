@@ -1,9 +1,12 @@
 package com.clayfin.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -26,8 +29,6 @@ import com.clayfin.repository.EmployeeProfileRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;
-
-import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
@@ -62,6 +63,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
 	}
 	
+	
+	@Override
+	public EmployeeProfile updateEmployeeProfileByEmployeeId(Integer employeeId, EmployeeProfile employeeProfile)
+			throws EmployeeException {
+		EmployeeProfile employeeProfile2 = getEmployeeProfileByEmployeeId(employeeId);
+		if (employeeProfile2 != null) {
+			BeanUtils.copyProperties(employeeProfile, employeeProfile2, getNullPropertyNames(employeeProfile));
+			return employeeProfileRepo.save(employeeProfile2);
+		}
+		else
+			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
+	}
 	
 	private String[] getNullPropertyNames(Object source) {
         final BeanWrapper src = new BeanWrapperImpl(source);
@@ -187,7 +200,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 		if (employee.getManager() != null)
 			throw new EmployeeException("Employee Manager Already Exist");
-		if(hr.getRole().equals(RoleType.ROLE_HR)) {
+		if(hr.getRole().equals("ROLE_HR")) {
 			employee.setManager(manager);
 
 			employee.setReportingTo(manager.getUsername());
@@ -237,5 +250,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return employeeProfileRepo.save(employeeProfile);
 	
 	}
+	
+	
+	@Override
+	public List<Employee> getAllBirthdayEmployeesBy() throws EmployeeException {
+		LocalDate date = LocalDate.now();
 
+		List<Employee> employees = new ArrayList<Employee>();
+		List<EmployeeProfile> employeeProfiles =  employeeProfileRepo.findByBirthDate(date);
+		for(EmployeeProfile i: employeeProfiles ) {
+		    employees.add(	i.getEmployee());
+		}
+		return employees;
+	}
+	
+	
+	@Override
+	public List<Employee> getAllNewEmployees() throws EmployeeException {
+		
+		List<Employee> employees =  employeeRepo.findFirst10ByOrderByEmployeeIdDesc();
+		
+		return employees;
+	}
 }

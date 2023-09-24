@@ -1,6 +1,9 @@
 package com.clayfin.controller;
 
+import java.time.LocalDate;
 import java.util.List;
+
+import javax.annotation.security.RolesAllowed;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import com.clayfin.dto.EmployeeDto;
 import com.clayfin.dto.GeneralResponse;
 import com.clayfin.entity.Employee;
 import com.clayfin.entity.EmployeeProfile;
+import com.clayfin.enums.RoleType;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.LeaveException;
@@ -27,6 +31,7 @@ import com.clayfin.service.EmployeeService;
 @RestController
 @RequestMapping("/employee")
 @CrossOrigin
+@RolesAllowed("ROLE_USER")
 public class EmployeeController {
 
 	@Autowired
@@ -55,6 +60,18 @@ public class EmployeeController {
 
 		generalResponse.setMessage("Employee Updated");
 		generalResponse.setData(employeeService.updateEmployee(employeeId, employee));
+
+		return ResponseEntity.ok(generalResponse);
+	}
+	
+	@PutMapping("/updateEmployeeProfileByEmployeeId/{employeeId}")
+	ResponseEntity<GeneralResponse> updateEmployeeProfileByEmployeeId(@PathVariable Integer employeeId, @RequestBody EmployeeProfile employeeProfile)
+			throws EmployeeException {
+
+		var generalResponse = new GeneralResponse();
+
+		generalResponse.setMessage("EmployeeProfile Updated");
+		generalResponse.setData(employeeService.updateEmployeeProfileByEmployeeId(employeeId,employeeProfile ));
 
 		return ResponseEntity.ok(generalResponse);
 	}
@@ -91,6 +108,16 @@ public class EmployeeController {
 		return ResponseEntity.ok(generalResponse);
 	}
 	
+	@GetMapping("/getAllBirthdayEmployees")
+	ResponseEntity<GeneralResponse> getAllBirthdayEmployeesBy() throws EmployeeException {
+
+		var generalResponse = new GeneralResponse();
+		generalResponse.setMessage("Found Employees by Date :" + LocalDate.now());
+		generalResponse.setData(employeeService.getAllBirthdayEmployeesBy());
+
+		return ResponseEntity.ok(generalResponse);
+	}
+	
 	
 	
 	@GetMapping("/getEmployeeProfileByEmployeeId/{employeeId}")
@@ -114,8 +141,9 @@ public class EmployeeController {
 
 		return ResponseEntity.ok(generalResponse);
 	}
-
+	
 	@GetMapping("/getAllEmployees")
+	@RolesAllowed("ROLE_USER")
 	ResponseEntity<GeneralResponse> getAllEmployees() throws EmployeeException {
 
 		var generalResponse = new GeneralResponse();

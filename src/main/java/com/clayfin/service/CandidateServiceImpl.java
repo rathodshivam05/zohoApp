@@ -18,7 +18,6 @@ import com.clayfin.enums.RoleType;
 import com.clayfin.exception.CandidateException;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.repository.CandidateRepo;
-import com.clayfin.repository.EmployeeProfileRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;

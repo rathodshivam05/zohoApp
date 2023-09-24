@@ -2,14 +2,16 @@ package com.clayfin.entity;
 
 import java.time.LocalDate;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.validation.constraints.NotBlank;
+
 import com.clayfin.enums.ActiveStatus;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,10 +25,12 @@ public class EmployeeProfile {
 	@Column(name = "employee_profile_id")
 	private Integer employeeProfileId;
 	
+	@NotBlank(message = "Employee Title Should n't be empty.")
 	private String title;
 	
 	private String department;
 	
+	@NotBlank(message = "Employee BaseLocation Should n't be empty.")
 	private String baseLocation;
 	
 	private String workLocation;
@@ -144,8 +148,6 @@ public class EmployeeProfile {
 	
 	private String religion;
 	
-	@OneToOne
-	private Candidate candidate;
 	
 	@OneToOne()
 	private Employee employee;

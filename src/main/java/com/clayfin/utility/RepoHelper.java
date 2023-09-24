@@ -23,6 +23,7 @@ import com.clayfin.exception.LeaveException;
 import com.clayfin.exception.RegularizationException;
 import com.clayfin.repository.AttendenceRepo;
 import com.clayfin.repository.CandidateRepo;
+import com.clayfin.repository.EmployeeProfileRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.repository.LeaveRepo;
 import com.clayfin.repository.TaskRepo;
@@ -40,6 +41,9 @@ public class RepoHelper {
 	private TaskRepo taskRepo;
 	
 	@Autowired
+	private EmployeeProfileRepo  employeeProfileRepo;
+	
+	@Autowired
 	private CandidateRepo candidateRepo;
 
 	@Autowired
@@ -48,6 +52,8 @@ public class RepoHelper {
 	public Boolean isEmployeeExist(Integer employeeId) {
 		return employeeRepo.findById(employeeId).isPresent();
 	}
+	
+	
 	
 	public Boolean isCandidateExist(Integer candidateId) {
 		return candidateRepo.findById(candidateId).isPresent();

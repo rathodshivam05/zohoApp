@@ -2,12 +2,14 @@ package com.clayfin.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -25,9 +27,6 @@ import com.clayfin.repository.AttendenceRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
