@@ -1,5 +1,6 @@
 package com.clayfin.service;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -35,10 +36,20 @@ public class RegularizationServiceImpl implements RegularizationService {
 	
 	@Autowired
 	private EmployeeRepo employeeRepo;
+	
+
+	private Employee userinfo(Principal user) {
+		Employee employee = employeeRepo.findByUsername(user.getName());
+		return employee;
+	}
 
 	@Override
-	public RegularizationRequest addRegularizationRequest(RegularizeDTO request, Integer employeeId)
+	public RegularizationRequest addRegularizationRequest(RegularizeDTO request, Integer employeeId,Principal user)
 			throws AttendanceException, EmployeeException, RegularizationException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(employeeId)) {
+
 		System.out.println(request);
 		Boolean isValid = repoHelper.isValidRegularizationRequest(request, employeeId);
 		
@@ -65,20 +76,36 @@ public class RegularizationServiceImpl implements RegularizationService {
 		regularizeRequest.setEmployee(employee);
 
 		return regularizationRepo.save(regularizeRequest);
+
+}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
 	}
 
 	@Override
-	public RegularizationRequest getRegularizationRequest(Integer regularizationReqeustId)
-			throws RegularizationException {
+	public RegularizationRequest getRegularizationRequest(Integer regularizationReqeustId,Principal user)
+			throws RegularizationException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (repoHelper.isEmployeeExist(currentUser.getEmployeeId())) {
 
 		return regularizationRepo.findById(regularizationReqeustId).orElseThrow(() -> new RegularizationException(
 				"Regularization Request Not Found with Regularization Id " + regularizationReqeustId));
+
+}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
 
 	}
 
 	@Override
 	public RegularizationRequest updateRegularizationStatusAndManagerId(Integer regularizationId,
-			RegularizationStatus status, Integer managerId) throws RegularizationException {
+			RegularizationStatus status, Integer managerId,Principal user) throws RegularizationException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(managerId)) {
 
 		RegularizationRequest request = regularizationRepo.findById(regularizationId)
 				.orElseThrow(() -> new RegularizationException(
@@ -111,11 +138,19 @@ public class RegularizationServiceImpl implements RegularizationService {
 		}
 
 		return regularizationRepo.save(request);
+
+}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
 	}
 
 	@Override
-	public List<RegularizationRequest> getRegularizationRequestByEmployeeId(Integer employeeId)
-			throws RegularizationException {
+	public List<RegularizationRequest> getRegularizationRequestByEmployeeId(Integer employeeId,Principal user)
+			throws RegularizationException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(employeeId)) {
 
 		List<RegularizationRequest> requests = regularizationRepo.findByEmployeeEmployeeId(employeeId);
 
@@ -123,11 +158,19 @@ public class RegularizationServiceImpl implements RegularizationService {
 			throw new RegularizationException(Constants.REGULARIZATION_REQUEST_NOT_FOUND);
 
 		return requests;
+
+}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
 	}
 
 	@Override
-	public List<RegularizationRequest> getRegularizationRequestByManagerId(Integer managerId)
-			throws RegularizationException {
+	public List<RegularizationRequest> getRegularizationRequestByManagerId(Integer managerId,Principal user)
+			throws RegularizationException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(managerId)) {
 
 		if (!repoHelper.isValidManager(managerId))
 			throw new RegularizationException(Constants.NOT_VALID_MANAGER);
@@ -139,11 +182,19 @@ public class RegularizationServiceImpl implements RegularizationService {
 
 		return requests;
 
+}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
+
 	}
 
 	@Override
 	public List<RegularizationRequest> getRegularizationRequestByEmployeeIdAndStatus(Integer employeeId,
-			RegularizationStatus status) throws RegularizationException {
+			RegularizationStatus status,Principal user) throws RegularizationException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(employeeId)) {
 
 		List<RegularizationRequest> requests = regularizationRepo.findByEmployeeEmployeeIdAndStatus(employeeId, status);
 
@@ -152,11 +203,19 @@ public class RegularizationServiceImpl implements RegularizationService {
 
 		return requests;
 
+}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
+
 	}
 
 	@Override
 	public List<RegularizationRequest> getRegularizationRequestByManagerIdAndStatus(Integer managerId,
-			RegularizationStatus status) throws RegularizationException {
+			RegularizationStatus status,Principal user) throws RegularizationException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(managerId)) {
 
 		if (!repoHelper.isValidManager(managerId))
 			throw new RegularizationException(Constants.NOT_VALID_MANAGER);
@@ -168,16 +227,29 @@ public class RegularizationServiceImpl implements RegularizationService {
 			throw new RegularizationException(Constants.REGULARIZATION_REQUEST_NOT_FOUND);
 
 		return requests;
+
+}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
 	}
 
 	@Override
-	public RegularizationRequest deleteRegularizationById(Integer regularizationId)
-			throws RegularizationException {
-		RegularizationRequest request = getRegularizationRequest(regularizationId);
+	public RegularizationRequest deleteRegularizationById(Integer regularizationId,Principal user)
+			throws RegularizationException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (repoHelper.isEmployeeExist(currentUser.getEmployeeId())) {
+RegularizationRequest request = getRegularizationRequest(regularizationId,user);
 
 		regularizationRepo.delete(request);
 
 		return request;
+
+}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
 	}
 
 }

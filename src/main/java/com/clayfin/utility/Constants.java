@@ -5,7 +5,7 @@ public interface Constants {
 	String EMPLOYEE_NOT_FOUND_WITH_ID = " Employee Not Found With Employee Id ";
 	String Hr_NOT_FOUND_WITH_ID = "HR Not Found with id : ";
 	String MANAGER_NOT_FOUND_WITH_ID = "Manager Not Found with id : ";
-	
+	String RESTRICTED_TO_ACCESS_OTHERS_DATA = "Restricted to access others data";
 	String CANDIDATE_NOT_FOUND_WITH_ID = " Candidate Not Found With Candidate Id ";
 	String NOT_VALID_HR = "You are not a valid HR to add an employee";
 	String EMPLOYEE_NOT_FOUND_WITH_EMAIL = " Employee Not Found With Employee Email ";
@@ -43,5 +43,11 @@ public interface Constants {
 
 	String REGULARIZATION_REQUEST_NOT_FOUND = " Regularization Request Not Found ";
 	
+	String HOLIDAY_EXIST_ONSAME_DATE = "Holiday is Already Exist on that Day, if want to change please Update it";
 	
+	String HOLIDAY_NOT_FOUND = "Holiday Not Found With Id: ";
+	
+	String CLAIM_NOT_FOUND="Claim not found with Id: ";
+	
+	String NOT_A_ADMIN = "USER Resdtricted to update Status, login as admin";
 }

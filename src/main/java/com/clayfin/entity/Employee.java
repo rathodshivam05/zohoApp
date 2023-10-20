@@ -18,6 +18,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+import com.clayfin.enums.ProbationStatus;
 import com.clayfin.enums.RoleType;
 import com.clayfin.enums.TitleType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -53,6 +54,8 @@ public class Employee {
 		
 	private LocalDate joiningDate;
 	
+	private ProbationStatus probationStatus;
+	
 	@Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,15}$",
 			message = " User's Password Should Be >7 and < 15 Characters and Atleast One Upper Case "
 					+ "and Atleast One Lower Case and Atleast One Digit and Atleast One Special Character" )
@@ -82,6 +85,10 @@ public class Employee {
 	@JsonIgnore
 	@OneToMany(mappedBy = "employee")
 	private List<LeaveRecord> leaveRecords;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "employee")
+	private List<Claims> claims;
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "employee")
@@ -95,7 +102,9 @@ public class Employee {
 	@JsonIgnore
 	private List<String> skillSet;
 
-	
+	@OneToOne(mappedBy = "employee")
+	@JsonIgnore
+	private LeaveTracker leaveTracker;
 
 	
 	

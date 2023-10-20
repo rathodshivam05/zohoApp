@@ -2,6 +2,7 @@ package com.clayfin.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,9 +39,12 @@ public class LeaveRecord {
 	private LeaveStatus status;
 
 	private String reason;
-
+	
+	private String response;
+	
 	@ManyToOne
-	@JsonIgnore
 	private Employee employee;
+	
+	private Integer managerId;
 
 }

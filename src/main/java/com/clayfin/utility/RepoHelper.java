@@ -1,5 +1,6 @@
 package com.clayfin.utility;
 
+import java.security.Principal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.clayfin.dto.DayAttendanceDto;
+import com.clayfin.dto.HolidayDto;
 import com.clayfin.dto.RegularizeDTO;
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
+import com.clayfin.entity.Holidays;
 import com.clayfin.entity.LeaveRecord;
 import com.clayfin.enums.AttendanceStatus;
 import com.clayfin.enums.LeaveStatus;
@@ -23,10 +26,15 @@ import com.clayfin.exception.LeaveException;
 import com.clayfin.exception.RegularizationException;
 import com.clayfin.repository.AttendenceRepo;
 import com.clayfin.repository.CandidateRepo;
+import com.clayfin.repository.ClaimsRepo;
 import com.clayfin.repository.EmployeeProfileRepo;
 import com.clayfin.repository.EmployeeRepo;
+import com.clayfin.repository.HolidayRepo;
 import com.clayfin.repository.LeaveRepo;
 import com.clayfin.repository.TaskRepo;
+import com.clayfin.service.AttendanceService;
+
+import net.bytebuddy.asm.Advice.Local;
 
 @Component
 public class RepoHelper {
@@ -39,22 +47,49 @@ public class RepoHelper {
 
 	@Autowired
 	private TaskRepo taskRepo;
-	
+
 	@Autowired
-	private EmployeeProfileRepo  employeeProfileRepo;
-	
+	private EmployeeProfileRepo employeeProfileRepo;
+
 	@Autowired
 	private CandidateRepo candidateRepo;
 
 	@Autowired
 	private AttendenceRepo attendanceRepo;
 
+	@Autowired
+	private HolidayRepo holidayRepo;
+
+	@Autowired
+	private ClaimsRepo claimsRepo;
+	
+	
+
 	public Boolean isEmployeeExist(Integer employeeId) {
 		return employeeRepo.findById(employeeId).isPresent();
 	}
-	
-	
-	
+
+	public Boolean isHolidayExistById(Integer holidayId) {
+		return holidayRepo.findById(holidayId).isPresent();
+	}
+
+	public Boolean isClaimExistById(Integer claimId) {
+		return claimsRepo.findById(claimId).isPresent();
+	}
+
+	public Boolean isHolidayExistByDate(Holidays holiday) {
+		List<Holidays> holidays = holidayRepo.findAll();
+		if (holidays.size() != 0) {
+			for (Holidays holidayOld : holidays) {
+				if (holiday.getDateOfHoliday().equals(holidayOld.getDateOfHoliday())) {
+					return true;
+				}
+			}
+		}
+		return false;
+
+	}
+
 	public Boolean isCandidateExist(Integer candidateId) {
 		return candidateRepo.findById(candidateId).isPresent();
 	}
@@ -85,7 +120,7 @@ public class RepoHelper {
 
 		int hours = (int) duration.toHoursPart();
 		int minutes = (int) duration.toMinutesPart();
-		int seconds = (int) duration.toSecondsPart();							
+		int seconds = (int) duration.toSecondsPart();
 
 		return LocalTime.of(hours, minutes, seconds);
 	}
@@ -139,7 +174,6 @@ public class RepoHelper {
 		return true;
 	}
 
-
 	public Boolean isValidManager(Integer managerId) {
 
 		try {
@@ -181,47 +215,73 @@ public class RepoHelper {
 	}
 
 	@SuppressWarnings("null")
-	public DayAttendanceDto getTotalTimeInDay(LocalDate date, Integer employeeId)
-			throws EmployeeException, LeaveException {
+	public DayAttendanceDto getTotalTimeInDay(LocalDate date, Integer employeeId,Principal user)
+			throws EmployeeException, LeaveException, AttendanceException {
 		DayAttendanceDto attendanceDto = new DayAttendanceDto();
 		List<Attendance> attendances = attendanceRepo.findByEmployeeEmployeeIdAndDate(employeeId, date);
+		List<Holidays> holidays = holidayRepo.findAll();
+		// changes
 
 		if (attendances.size() == 0) {
 			String dayOfWeek = date.getDayOfWeek().toString();
-			if (dayOfWeek.equals("SUNDAY") || dayOfWeek.equals("SATURDAY")) {
-				attendanceDto.setStatus(AttendanceStatus.HOLIDAY);
-			} else {
 
-				List<LeaveRecord> leaves = leaveRepo.findByEmployeeEmployeeId(employeeId);
-
-				for (LeaveRecord leave : leaves) {
-					if ((date.isAfter(leave.getStartDate()) && date.isBefore(leave.getEndDate()) || (date.isEqual(leave.getStartDate()) || date.isEqual(leave.getEndDate()))) && leave.getStatus().equals(LeaveStatus.APPROVED)) {
-						attendanceDto.setStatus(AttendanceStatus.LEAVE);
-						
-
-					} else {
-						if(date.isBefore(LocalDate.now())) {
-							attendanceDto.setStatus(AttendanceStatus.ABSENT);
-						}else {
-							attendanceDto.setStatus(AttendanceStatus.NULL);
-						}
-						
-					}
+			for (Holidays i : holidays) {
+				if (i.getDateOfHoliday().equals(date)) {
+					attendanceDto.setStatus(i.getHolidays());
 				}
 
+				else if (dayOfWeek.equals("SUNDAY") || dayOfWeek.equals("SATURDAY")) {
+					attendanceDto.setStatus("HOLIDAY");
+				} else {
+
+					List<LeaveRecord> leaves = leaveRepo.findByEmployeeEmployeeId(employeeId);
+
+					for (LeaveRecord leave : leaves) {
+						if ((date.isAfter(leave.getStartDate()) && date.isBefore(leave.getEndDate())
+								|| (date.isEqual(leave.getStartDate()) || date.isEqual(leave.getEndDate())))
+								&& leave.getStatus().equals(LeaveStatus.APPROVED)) {
+							attendanceDto.setStatus("LEAVE");
+
+						} else {
+							if (date.isBefore(LocalDate.now())) {
+								attendanceDto.setStatus("ABSENT");
+							} else {
+								attendanceDto.setStatus("NULL");
+							}
+
+						}
+					}
+
+				}
 				
 			}
 			attendanceDto.setDate(date);
 			attendanceDto.setTotalHoursInADay(null);
 			return attendanceDto;
+
 		} else {
 
 			Integer hours = 0;
 			Integer minutes = 0;
 			Integer seconds = 0;
-
+			
+		//	Attendance lastAttendance = attendanceService.getLastAttendance(employeeId, user);
+			
+			
+		
 			for (Attendance attendance : attendances) {
-				LocalTime time = attendance.getSpentHours();
+			//	LocalTime time = attendance.getSpentHours();
+				LocalTime startTime = attendance.getCheckInTimestamp();
+				LocalTime endTime;
+				if(attendance.getCheckOutTimestamp()==null) {
+					endTime = LocalTime.now();
+				}
+				else {
+					endTime = attendance.getCheckOutTimestamp();
+				}
+				
+				LocalTime time = findTimeBetweenTimestamps(startTime, endTime);
+				
 				hours += time.getHour();
 				minutes += time.getMinute();
 				seconds += time.getSecond();
@@ -230,12 +290,13 @@ public class RepoHelper {
 			LocalTime totalTime = LocalTime.of(hours, minutes, seconds);
 			attendanceDto.setTotalHoursInADay(totalTime);
 			if (date.isEqual(LocalDate.now())) {
-				attendanceDto.setStatus(AttendanceStatus.COUNTING);
+				attendanceDto.setStatus("COUNTING");
 			} else {
-				attendanceDto.setStatus(AttendanceStatus.PRESENT);
+				attendanceDto.setStatus("PRESENT");
 			}
 			return attendanceDto;
-		}
+			}
+		
 
 	}
 

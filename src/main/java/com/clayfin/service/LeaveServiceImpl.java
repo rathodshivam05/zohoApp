@@ -1,5 +1,6 @@
 package com.clayfin.service;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -13,12 +14,14 @@ import org.springframework.stereotype.Service;
 
 import com.clayfin.entity.Employee;
 import com.clayfin.entity.LeaveRecord;
+import com.clayfin.entity.LeaveTracker;
 import com.clayfin.enums.LeaveStatus;
 import com.clayfin.enums.LeaveType;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.LeaveException;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.repository.LeaveRepo;
+import com.clayfin.repository.LeaveTrackerRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;
 
@@ -33,36 +36,89 @@ public class LeaveServiceImpl implements LeaveService {
 
 	@Autowired
 	private EmployeeRepo employeeRepo;
+	
+	@Autowired
+	private LeaveTrackerRepo leaveTrackerRepo;
+	
+	private Employee userinfo(Principal user) {
+		Employee employee = employeeRepo.findByUsername(user.getName());
+		return employee;
+	}
 
 	@Override
-	public LeaveRecord applyLeave(LeaveRecord leaveRecord, Integer employeeId)
+	public LeaveRecord applyLeave(LeaveRecord leaveRecord, Integer employeeId,Principal user)
 			throws LeaveException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(employeeId)) {
+
+
+
 
 		if (leaveRecord.getEndDate().isBefore(leaveRecord.getStartDate()))
 			throw new LeaveException("End Date must be greater than start Date ");
-
-		int days = (leaveRecord.getEndDate().getDayOfYear() - leaveRecord.getStartDate().getDayOfYear()) + 1;
+		
+		LeaveTracker leaveTracker = leaveTrackerRepo.findByEmployeeEmployeeId(employeeId);
+		
+		int days = (leaveRecord.getEndDate().getDayOfYear() - leaveRecord.getStartDate().getDayOfYear()) ;
 
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
+		if(leaveRecord.getLeaveType().equals(LeaveType.PRIVILEGE)) {
+			if(leaveTracker.getAvailablePrivilegeLeave()> days || leaveTracker.getAvailablePrivilegeLeave()== days ) {
+				leaveRecord.setDays(days);
+				leaveRecord.setEmployee(employee);
+				leaveRecord.setStatus(LeaveStatus.PENDING);
+				leaveRecord.setCreatedTimestamp(LocalDateTime.now());
+				
+				leaveRecord.setManagerId(employee.getManager().getEmployeeId());
+				
 
+				LeaveTracker leaveTrackerNew  = leaveTrackerRepo.findById(leaveTracker.getId()).get();
+				
+				leaveTrackerNew.setBookedPrivilegeLeave(days);
+				leaveTrackerNew.setAvailablePrivilegeLeave(leaveTracker.getAvailablePrivilegeLeave()-days);
+				BeanUtils.copyProperties(leaveTracker, leaveTrackerNew, getNullPropertyNames(leaveTracker));
+				leaveTrackerRepo.save(leaveTrackerNew);
+				return leaveRepo.save(leaveRecord);
+			}
+			else {
+				throw new LeaveException("Privilege Leaves not suffient ");
+			}
+		}
+		
 		leaveRecord.setDays(days);
 		leaveRecord.setEmployee(employee);
 		leaveRecord.setStatus(LeaveStatus.PENDING);
 		leaveRecord.setCreatedTimestamp(LocalDateTime.now());
+		leaveRecord.setManagerId(employee.getManager().getEmployeeId());
+		
 		return leaveRepo.save(leaveRecord);
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
+		
 	}
 
 	@Override
-	public LeaveRecord updateLeave(Integer leaveId, LeaveRecord leaveRecord) throws LeaveException {
+	public LeaveRecord updateLeave(Integer leaveId, LeaveRecord leaveRecord,Principal user) throws LeaveException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (repoHelper.isEmployeeExist(currentUser.getEmployeeId())) {
+
+
 
 		if (!repoHelper.isLeaveExist(leaveId))
 			throw new LeaveException(Constants.LEAVE_NOT_FOUND_WITH_LEAVE_ID + leaveId);
 
-		LeaveRecord leaveRecord1 = getLeaveByLeaveId(leaveId);
+		LeaveRecord leaveRecord1 = getLeaveByLeaveId(leaveId,user);
 
 		BeanUtils.copyProperties(leaveRecord, leaveRecord1, getNullPropertyNames(leaveRecord));
-		return leaveRepo.save(leaveRecord1);
+		return leaveRepo.save(leaveRecord1);}
+else {
+			throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+		}
 	}
 
 	private String[] getNullPropertyNames(Object source) {
@@ -81,24 +137,49 @@ public class LeaveServiceImpl implements LeaveService {
 	}
 
 	@Override
-	public LeaveRecord getLeaveByLeaveId(Integer leaveId) throws LeaveException {
+	public LeaveRecord getLeaveByLeaveId(Integer leaveId,Principal user) throws LeaveException, EmployeeException {
+		
+		Employee currentUser = userinfo(user);
+
+		if (repoHelper.isEmployeeExist(currentUser.getEmployeeId())) {
+
+
+
 		return leaveRepo.findById(leaveId)
 				.orElseThrow(() -> new LeaveException(Constants.LEAVE_NOT_FOUND_WITH_LEAVE_ID + leaveId));
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 
 	}
 
 	@Override
-	public LeaveRecord deleteLeave(Integer leaveId) throws LeaveException {
-		LeaveRecord leaveRecord = getLeaveByLeaveId(leaveId);
+	public LeaveRecord deleteLeave(Integer leaveId,Principal user) throws LeaveException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (repoHelper.isEmployeeExist(currentUser.getEmployeeId())) {
+
+
+LeaveRecord leaveRecord = getLeaveByLeaveId(leaveId,user);
 
 		leaveRepo.delete(leaveRecord);
 
 		return leaveRecord;
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 	}
 
 	@Override
-	public List<LeaveRecord> getLeavesByEmployeeId(Integer employeeId) throws EmployeeException, LeaveException {
-		if (!repoHelper.isEmployeeExist(employeeId))
+	public List<LeaveRecord> getLeavesByEmployeeId(Integer employeeId,Principal user) throws EmployeeException, LeaveException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(employeeId)) {
+
+
+if (!repoHelper.isEmployeeExist(employeeId))
 			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
 
 		List<LeaveRecord> leaveRecords = leaveRepo.findByEmployeeEmployeeId(employeeId);
@@ -107,21 +188,39 @@ public class LeaveServiceImpl implements LeaveService {
 			throw new LeaveException(Constants.NO_LEAVES_FOUND);
 
 		return leaveRecords;
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 	}
 
 	@Override
-	public List<LeaveRecord> getAllLeavesByManagerId(Integer managerId) throws EmployeeException, LeaveException {
-		List<LeaveRecord> leaveRecords = leaveRepo.findByEmployeeManagerEmployeeId(managerId);
+	public List<LeaveRecord> getAllLeavesByManagerId(Integer managerId,Principal user) throws EmployeeException, LeaveException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(managerId)) {
+
+
+List<LeaveRecord> leaveRecords = leaveRepo.findByEmployeeManagerEmployeeId(managerId);
 
 		if (leaveRecords.isEmpty())
 			throw new LeaveException(Constants.NO_LEAVES_FOUND);
 
 		return leaveRecords;
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 	}
 
 	@Override
-	public List<LeaveRecord> getLeavesByEmployeeIdAndStatus(Integer employeeId, LeaveStatus status)
-			throws LeaveException {
+	public List<LeaveRecord> getLeavesByEmployeeIdAndStatus(Integer employeeId, LeaveStatus status,Principal user)
+			throws LeaveException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(employeeId)) {
+
+
 
 		List<LeaveRecord> leaveRecords = leaveRepo.findByEmployeeEmployeeIdAndStatus(employeeId, status);
 
@@ -129,12 +228,21 @@ public class LeaveServiceImpl implements LeaveService {
 			throw new LeaveException(Constants.NO_LEAVES_FOUND_WITH_EMPLOYEE_ID + employeeId);
 
 		return leaveRecords;
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 
 	}
 
 	@Override
-	public List<LeaveRecord> getLeavesByManagerIdAndStatus(Integer managerId, LeaveStatus status)
+	public List<LeaveRecord> getLeavesByManagerIdAndStatus(Integer managerId, LeaveStatus status,Principal user)
 			throws EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(managerId)) {
+
+
 
 		List<LeaveRecord> leaveRecords = leaveRepo.findByEmployeeManagerEmployeeIdAndStatus(managerId, status);
 
@@ -142,11 +250,20 @@ public class LeaveServiceImpl implements LeaveService {
 			throw new EmployeeException(Constants.NO_LEAVES_FOUND_WITH_EMPLOYEE_ID + managerId);
 
 		return leaveRecords;
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 	}
 
 	@Override
-	public List<LeaveRecord> getLeavesByEmployeeIdAndLeaveType(Integer employeeId, LeaveType leaveType)
+	public List<LeaveRecord> getLeavesByEmployeeIdAndLeaveType(Integer employeeId, LeaveType leaveType,Principal user)
 			throws EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(employeeId)) {
+
+
 
 		List<LeaveRecord> leaveRecords = leaveRepo.findByEmployeeEmployeeIdAndLeaveType(employeeId, leaveType);
 
@@ -154,30 +271,52 @@ public class LeaveServiceImpl implements LeaveService {
 			throw new EmployeeException(Constants.NO_LEAVES_FOUND_WITH_EMPLOYEE_ID + employeeId);
 
 		return leaveRecords;
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 	}
 
 	@Override
-	public List<LeaveRecord> getLeavesByManagerIdAndLeaveType(Integer managerId, LeaveType leaveType)
+	public List<LeaveRecord> getLeavesByManagerIdAndLeaveType(Integer managerId, LeaveType leaveType,Principal user)
 			throws EmployeeException {
-		List<LeaveRecord> leaveRecords = leaveRepo.findByEmployeeManagerEmployeeIdAndLeaveType(managerId, leaveType);
+		Employee currentUser = userinfo(user);
+
+		if (currentUser.getEmployeeId().equals(managerId)) {
+
+
+List<LeaveRecord> leaveRecords = leaveRepo.findByEmployeeManagerEmployeeIdAndLeaveType(managerId, leaveType);
 
 		if (leaveRecords.isEmpty())
 			throw new EmployeeException(Constants.NO_LEAVES_FOUND_WITH_EMPLOYEE_ID + managerId);
 
 		return leaveRecords;
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 	}
 
 	@Override
-	public LeaveRecord updateLeaveStatus(Integer leaveId, LeaveStatus status) throws LeaveException {
-		LeaveRecord leave = leaveRepo.findById(leaveId)
+	public LeaveRecord updateLeaveStatus(Integer leaveId, LeaveStatus status,String response,Principal user) throws LeaveException, EmployeeException {
+		Employee currentUser = userinfo(user);
+
+		if (repoHelper.isEmployeeExist(currentUser.getEmployeeId())) {
+
+
+LeaveRecord leave = leaveRepo.findById(leaveId)
 				.orElseThrow(() -> new LeaveException(Constants.LEAVE_NOT_FOUND_WITH_LEAVE_ID + leaveId));
 
 		if (leave.getStatus() != LeaveStatus.PENDING)
 			throw new LeaveException("Leave Already Updated to " + leave.getStatus());
 
 		leave.setStatus(status);
-
+		leave.setResponse(response);
 		return leaveRepo.save(leave);
+		}
+		else {
+					throw new EmployeeException(Constants.RESTRICTED_TO_ACCESS_OTHERS_DATA);
+				}
 
 	}
 

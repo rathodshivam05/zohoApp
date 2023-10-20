@@ -31,6 +31,7 @@ public class Task {
 	private Integer taskId;
 	private String taskDescription;
 	private LocalDateTime assignedTime;
+	private LocalDateTime deadLineTime;
 
 	@Enumerated(EnumType.STRING)
 	private TaskStatus status;
@@ -40,6 +41,6 @@ public class Task {
 	@JsonIgnore
 	private Employee employee;
 	
-	
+	private String employeeName;
 
 }

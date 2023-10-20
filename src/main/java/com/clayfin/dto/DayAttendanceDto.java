@@ -14,5 +14,5 @@ import lombok.Setter;
 public class DayAttendanceDto {
 	private LocalTime totalHoursInADay;
 	private LocalDate date;
-	private AttendanceStatus status;
+	private String status;
 }

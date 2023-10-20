@@ -1,5 +1,7 @@
 package com.clayfin.controller;
 
+import java.security.Principal;
+
 import javax.annotation.security.RolesAllowed;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +26,11 @@ public class RestControllerDummy {
 	
 	@GetMapping("/getAllEmployees")
 	@RolesAllowed("ROLE_USER")
-	ResponseEntity<GeneralResponse> getAllEmployees() throws EmployeeException {
+	ResponseEntity<GeneralResponse> getAllEmployees(Principal user) throws EmployeeException {
 
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("Found All Employees ");
-		generalResponse.setData(employeeService.getAllEmployees());
+		generalResponse.setData(employeeService.getAllEmployees(user));
 
 		return ResponseEntity.ok(generalResponse);
 	}

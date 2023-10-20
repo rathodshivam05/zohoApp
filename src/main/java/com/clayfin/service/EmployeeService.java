@@ -1,5 +1,6 @@
 package com.clayfin.service;
 
+import java.security.Principal;
 import java.util.List;
 
 import com.clayfin.dto.EmployeeDto;
@@ -17,41 +18,41 @@ public interface EmployeeService {
 	
 	
 
-	Employee addEmployee(Employee employee,Integer hrId) throws EmployeeException;
+	Employee addEmployee(Employee employee,Integer hrId,Integer managerId,Principal user) throws EmployeeException;
 
-	Employee updateEmployee(Integer employeeId,Employee employee) throws EmployeeException;
+	Employee updateEmployee(Integer employeeId,Employee employee,Principal user) throws EmployeeException;
 
-	Employee deleteEmployee(Integer employeeId) throws EmployeeException;
+	Employee deleteEmployee(Integer employeeId,Integer hrId,Principal user) throws EmployeeException;
 
-	Employee getEmployeeById(Integer employeeId) throws EmployeeException;
+	Employee getEmployeeById(Integer employeeId,Principal user) throws EmployeeException;
 	
-	Employee getEmployeeByEmail(String email ) throws EmployeeException;
+	Employee getEmployeeByEmail(String email ,Principal user) throws EmployeeException;
 	
 	
-	List<Employee> getAllEmployees() throws EmployeeException;
+	List<Employee> getAllEmployees(Principal user) throws EmployeeException;
 
-	Employee getEmployeeManager(Integer employeeId) throws EmployeeException;
+	Employee getEmployeeManager(Integer employeeId,Principal user) throws EmployeeException;
 
-	List<Employee> getEmployeesOfManager(Integer managerId) throws EmployeeException;
+	List<Employee> getEmployeesOfManager(Integer managerId,Principal user) throws EmployeeException;
 	
-	List<Task> getAllTaskMyEmployeeId(Integer employeeId) throws EmployeeException,TaskException;
+	List<Task> getAllTaskMyEmployeeId(Integer employeeId,Principal user) throws EmployeeException,TaskException;
 	
-	List<LeaveRecord> getAllLeavesByEmployeeId(Integer employeeId) throws EmployeeException,LeaveException;
+	List<LeaveRecord> getAllLeavesByEmployeeId(Integer employeeId,Principal user) throws EmployeeException,LeaveException;
 	
-	List<Attendance> getAllAttendanceByEmployeeId(Integer employeeId) throws EmployeeException,AttendanceException;
+	List<Attendance> getAllAttendanceByEmployeeId(Integer employeeId,Principal user) throws EmployeeException,AttendanceException;
 
-	Employee updateSkillSet(Integer employeeId,List<String> skills) throws EmployeeException;
+	Employee updateSkillSet(Integer employeeId,List<String> skills,Principal user) throws EmployeeException;
 	
-	EmployeeProfile updateEmployeeProfileByEmployeeId(Integer employeeId,EmployeeProfile employeeProfile) throws EmployeeException;
+	EmployeeProfile updateEmployeeProfileByEmployeeId(Integer employeeId,EmployeeProfile employeeProfile,Principal user) throws EmployeeException;
 	
 	
-	EmployeeProfile getEmployeeProfileByEmployeeId(Integer employeeId) throws EmployeeException;
+	EmployeeProfile getEmployeeProfileByEmployeeId(Integer employeeId,Principal user) throws EmployeeException;
 
-	EmployeeProfile addEmployeeProfileData(Integer employeeId, EmployeeProfile employeeProfile) throws EmployeeException;
+	EmployeeProfile addEmployeeProfileData(Integer employeeId, EmployeeProfile employeeProfile,Principal user) throws EmployeeException;
 
-	Employee setManagerToEmployeeByHr(Integer employeeId,  Integer hrId,EmployeeDto employeeDto) throws EmployeeException;
+	Employee setManagerToEmployeeByHr(Integer employeeId,  Integer hrId,EmployeeDto employeeDto,Principal user) throws EmployeeException;
 	
-	List<Employee> getAllBirthdayEmployeesBy() throws EmployeeException;
+	List<Employee> getAllBirthdayEmployeesBy(Principal user) throws EmployeeException;
 	
-	List<Employee> getAllNewEmployees() throws EmployeeException;
+	List<Employee> getAllNewEmployees(Principal user) throws EmployeeException;
 }

@@ -1,5 +1,7 @@
 package com.clayfin.controller;
 
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,19 +32,19 @@ public class HrController {
 	
 
 	@PostMapping("/addcandidate/{hrId}")
-	ResponseEntity<GeneralResponse> addcandidate(@PathVariable Integer hrId,@RequestBody Candidate candidate) throws CandidateException {
+	ResponseEntity<GeneralResponse> addcandidate(@PathVariable Integer hrId,@RequestBody Candidate candidate,Principal user) throws CandidateException, EmployeeException {
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("candidate Added");
-		generalResponse.setData(candidateService.addCandidate(candidate,hrId));
+		generalResponse.setData(candidateService.addCandidate(candidate,hrId,user));
 		return ResponseEntity.ok(generalResponse);
 	}
 	
 
 	@PostMapping("/addEmployeeByCandidateId/{hrId}/{candidateId}")
-	ResponseEntity<GeneralResponse> addEmployeeByCandidateId(@PathVariable Integer hrId,@RequestBody EmployeeDto employeeDto, @PathVariable Integer candidateId) throws CandidateException, EmployeeException {
+	ResponseEntity<GeneralResponse> addEmployeeByCandidateId(@PathVariable Integer hrId,@RequestBody EmployeeDto employeeDto, @PathVariable Integer candidateId,Principal user) throws CandidateException, EmployeeException {
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("candidate Added");
-		generalResponse.setData(candidateService.addEmployeeByCandidateId(candidateId,employeeDto,hrId));
+		generalResponse.setData(candidateService.addEmployeeByCandidateId(candidateId,employeeDto,hrId,user));
 		return ResponseEntity.ok(generalResponse);
 	}
 	
@@ -57,13 +59,13 @@ public class HrController {
 //	
 	
 	@PutMapping("/updatecandidate/{candidateId}")
-	ResponseEntity<GeneralResponse> updatecandidate(@PathVariable Integer candidateId, @RequestBody Candidate candidate)
-			throws CandidateException {
+	ResponseEntity<GeneralResponse> updatecandidate(@PathVariable Integer candidateId, @RequestBody Candidate candidate,Principal user)
+			throws CandidateException, EmployeeException {
 
 		var generalResponse = new GeneralResponse();
 
 		generalResponse.setMessage("candidate Updated");
-		generalResponse.setData(candidateService.updateCandidate(candidateId, candidate));
+		generalResponse.setData(candidateService.updateCandidate(candidateId, candidate,user));
 
 		return ResponseEntity.ok(generalResponse);
 	}
@@ -72,21 +74,21 @@ public class HrController {
 
 
 	@DeleteMapping("/deletecandidate/{candidateId}")
-	ResponseEntity<GeneralResponse> deletecandidate(@PathVariable Integer candidateId) throws CandidateException {
+	ResponseEntity<GeneralResponse> deletecandidate(@PathVariable Integer candidateId,Principal user) throws CandidateException, EmployeeException {
 
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("candidate Deleted");
-		generalResponse.setData(candidateService.deleteCandidate(candidateId));
+		generalResponse.setData(candidateService.deleteCandidate(candidateId,user));
 
 		return ResponseEntity.ok(generalResponse);
 	}
 
 	@GetMapping("/getcandidateById/{candidateId}")
-	ResponseEntity<GeneralResponse> getcandidateById(@PathVariable Integer candidateId) throws CandidateException {
+	ResponseEntity<GeneralResponse> getcandidateById(@PathVariable Integer candidateId,Principal user) throws CandidateException, EmployeeException {
 
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("Found candidate with Id :" + candidateId);
-		generalResponse.setData(candidateService.getCandidateById(candidateId));
+		generalResponse.setData(candidateService.getCandidateById(candidateId,user));
 
 		return ResponseEntity.ok(generalResponse);
 	}
@@ -97,21 +99,21 @@ public class HrController {
 	
 
 	@GetMapping("/getcandidateByEmail/{email}")
-	ResponseEntity<GeneralResponse> getcandidateByEmail(@PathVariable String email) throws CandidateException {
+	ResponseEntity<GeneralResponse> getcandidateByEmail(@PathVariable String email,Principal user) throws CandidateException, EmployeeException {
 
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("Found candidate with Email :" + email);
-		generalResponse.setData(candidateService.getCandidateByEmail(email));
+		generalResponse.setData(candidateService.getCandidateByEmail(email,user));
 
 		return ResponseEntity.ok(generalResponse);
 	}
 
 	@GetMapping("/getAllcandidates")
-	ResponseEntity<GeneralResponse> getAllcandidates() throws CandidateException {
+	ResponseEntity<GeneralResponse> getAllcandidates(Principal user) throws CandidateException, EmployeeException {
 
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("Found All candidates ");
-		generalResponse.setData(candidateService.getAllCandidates());
+		generalResponse.setData(candidateService.getAllCandidates(user));
 
 		return ResponseEntity.ok(generalResponse);
 	}

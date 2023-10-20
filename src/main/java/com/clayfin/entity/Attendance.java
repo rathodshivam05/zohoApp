@@ -31,8 +31,8 @@ public class Attendance{
 	private LocalTime CheckOutTimestamp;
 	private LocalTime spentHours;
 	
+	private Boolean checkin;
 	
-
 	@ManyToOne
 	@JoinColumn(name="employee_id")
 	@JsonIgnore

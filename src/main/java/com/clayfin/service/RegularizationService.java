@@ -1,5 +1,6 @@
 package com.clayfin.service;
 
+import java.security.Principal;
 import java.util.List;
 
 import com.clayfin.dto.RegularizeDTO;
@@ -11,29 +12,29 @@ import com.clayfin.exception.RegularizationException;
 
 public interface RegularizationService {
 
-	RegularizationRequest addRegularizationRequest(RegularizeDTO request, Integer employeeId)
+	RegularizationRequest addRegularizationRequest(RegularizeDTO request, Integer employeeId,Principal user)
 			throws RegularizationException, AttendanceException, EmployeeException;
 
-	RegularizationRequest getRegularizationRequest(Integer regularizationReqeustId) throws RegularizationException;
+	RegularizationRequest getRegularizationRequest(Integer regularizationReqeustId,Principal user) throws RegularizationException, EmployeeException;
 
-	RegularizationRequest updateRegularizationStatusAndManagerId(Integer regularizationId, RegularizationStatus status,Integer managerId)
-			throws RegularizationException;
+	RegularizationRequest updateRegularizationStatusAndManagerId(Integer regularizationId, RegularizationStatus status,Integer managerId,Principal user)
+			throws RegularizationException, EmployeeException;
 	
 	
-	RegularizationRequest deleteRegularizationById(Integer regularizationId)
-			throws RegularizationException;
+	RegularizationRequest deleteRegularizationById(Integer regularizationId,Principal user)
+			throws RegularizationException, EmployeeException;
 
 	
-	List<RegularizationRequest> getRegularizationRequestByEmployeeId(Integer employeeId)
-			throws RegularizationException;
+	List<RegularizationRequest> getRegularizationRequestByEmployeeId(Integer employeeId,Principal user)
+			throws RegularizationException, EmployeeException;
 
-	List<RegularizationRequest> getRegularizationRequestByManagerId(Integer managerId)
-			throws RegularizationException;
+	List<RegularizationRequest> getRegularizationRequestByManagerId(Integer managerId,Principal user)
+			throws RegularizationException, EmployeeException;
 
-	List<RegularizationRequest> getRegularizationRequestByEmployeeIdAndStatus(Integer employeeId,RegularizationStatus status)
-			throws RegularizationException;
+	List<RegularizationRequest> getRegularizationRequestByEmployeeIdAndStatus(Integer employeeId,RegularizationStatus status,Principal user)
+			throws RegularizationException, EmployeeException;
 
-	List<RegularizationRequest> getRegularizationRequestByManagerIdAndStatus(Integer managerId,RegularizationStatus status)
-			throws RegularizationException;
+	List<RegularizationRequest> getRegularizationRequestByManagerIdAndStatus(Integer managerId,RegularizationStatus status,Principal user)
+			throws RegularizationException, EmployeeException;
 
 }

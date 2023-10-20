@@ -2,6 +2,6 @@ package com.clayfin.enums;
 
 public enum LeaveType {
 	
-	EMERGENCY,GENERAL
+	EMERGENCY,COMPENSATORY,LOP,PRIVILEGE
 
 }
